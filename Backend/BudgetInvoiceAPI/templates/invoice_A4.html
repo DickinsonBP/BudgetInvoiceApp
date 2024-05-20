@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="invoice.css">
+<html>
+<!-- The footer contains the company's website and address. To align the address details we will use flexbox in the CSS style. -->
+<!-- The header element will appear on the top of each page of this invoice document. -->
+  <body>
+    <header>
+      <div class="headerSection">
+        <!-- As a logo we take an SVG element and add the name in an standard H1 element behind it. -->
+        <div class="logoAndName">
+          <svg>
+            <img class="logoImage" src="file:///C:/Users/dicki/Desktop/CODES/BudgetInvoiceApp/Backend/res/SB/logo.png">
+          </svg>
+          <h1>Servicios Bedoya</h1>
+          <div class="ownerData">
+            <h3>{{owner_name}}</h3>
+            <b>{{owner_nif}} -</b>
+            <b>{{owner_phone}}</b>
+            <b>{{owner_email}}</b>
+          </div>
+        </div>
+          <div class="invoicedata">
+            <p><b>Factura N° {{doc_number}}</b></p>
+            <p><b>{{actual_date}}</b></p>
+          </div>
+          <div class="clientdata">
+            <p><b>{{client_name}}</b></p>
+            <p><b>{{nif}}</b></p>
+            <p><b>{{address}}</b></p>
+          </div>
+        </div>
+
+        <!-- The two header rows are divided by an blue line, we use the HR element for this. -->
+    </header>
+    
+    <hr />
+    
+    <!-- In the main section the table for the separate items is added. Also we add another table for the summary, so subtotal, tax and total amount. -->
+    <main>
+      <table>
+        <!-- A THEAD element is used to ensure the header of the table is repeated if it consumes more than one page. -->
+        <thead>
+          <tr>
+            <th>Descripción</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <!-- The single invoice items are all within the TBODY of the table. -->
+        <tbody>
+          {{desc}}
+        </tbody>
+      </table>
+      <!-- The summary table contains the subtotal, tax and total amount. -->
+      <table class="summary">
+        <tr>
+          <th>
+            <b>Subtotal</b>
+            <b class="subtotal">{{subtotal}}€</b>
+          </th>
+        </tr>
+        <tr>
+          <th>
+            <b>IVA {{vat}}%</b> 
+            <b class="vat">{{vat_total}}€</b>
+          </th>
+        </tr>
+        <tr class="total">
+          <th>
+            <b>Total</b>
+            <b class="inv_total">{{total}}€</b>
+          </th>
+        </tr>
+      </table>
+    </main>
+    <!-- Within the aside tag we will put the terms and conditions which shall be shown below the invoice table. -->
+    <aside>
+      <!-- Before the terms and conditions we will add another blue divider line with the help of the HR tag. -->
+      <hr />
+      <div class="payment">
+        <p>Pago a la siguiente cuenta</p>
+        <p>{{owner_account_number}}</p>
+      </div>
+    </aside>
+  </body>
+</html>
