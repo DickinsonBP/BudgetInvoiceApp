@@ -84,6 +84,7 @@ export const getBudgets = async() => {
  */
 export const createBudget = async (budget) => {
     try {
+        console.log(budget);
         const response = await axios.post(`${API_URL}/budgets`, budget);
         return response.data;
     } catch (error) {
@@ -177,6 +178,16 @@ export const exportInvoiceToPDF = async (id) => {
         return response.data;
     } catch (error) {
         console.error('Error exporting invoice to pdf:', error);
+        throw error;
+    }
+}
+
+export const exportBudgetToPDF = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/budgets/${id}/pdf`);
+        return response.data;
+    } catch (error) {
+        console.error('Error exporting budget to pdf:', error);
         throw error;
     }
 }

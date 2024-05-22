@@ -9,6 +9,7 @@ urlpatterns = [
     path('clients/<int:pk>', views.SingleClientView.as_view()),
     path('budgets', views.BudgetView.as_view()),
     path('budgets/<int:pk>', views.SingleBudgetView.as_view()),
+    path('budgets/<int:pk>/pdf', views.budget_pdf),
     path('invoices', views.InvoiceView.as_view()),
     path('invoices/<int:pk>', views.SingleInvoiceView.as_view()),
     path('invoices/<int:pk>/pdf', views.invoice_pdf),

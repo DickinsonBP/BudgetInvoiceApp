@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getBudgets, createBudget, updateBudget, apiDeleteBudget, getClients } from '../../services/api';
+import { getBudgets, createBudget, updateBudget, apiDeleteBudget, getClients, exportBudgetToPDF } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
@@ -12,6 +12,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { Tag } from 'primereact/tag';
 
 export default function Budgets() {
     const navigate = useNavigate();
@@ -126,19 +127,16 @@ export default function Budgets() {
     };
 
     const editBudget = (budget) => {
-        setBudget({ ...budget });
-        setSelectedClient(budget.client);
-        setBudgetDialog(true);
+        // setBudget({ ...budget });
+        // setSelectedClient(budget.client);
+        // setBudgetDialog(true);
+        navigate('/budgets/edit-budget', {state:{budget}});
     };
 
     const confirmDeleteBudget = (budget) => {
         setBudget(budget);
         setDeleteBudgetDialog(true);
     };
-
-    const exportToPdf = (budget) => {
-
-    }
 
     const deleteBudget = async () => {
         try{
@@ -158,6 +156,16 @@ export default function Budgets() {
     const exportCSV = () => {
         dt.current.exportCSV();
     };
+
+    const exportToPdf = async (budget) => {
+        try{
+            await exportBudgetToPDF(budget.id);
+            toast.current.show({ severity: 'success', summary: 'Perfecto!', detail: 'Ya esta disponible el presupuesto en PDF', life: 3000 });
+        }catch (error) {
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al exportar a PDF el presupuesto', life: 3000 });
+            console.error('Error deleting user:',error);
+        }
+    }
 
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
@@ -216,10 +224,38 @@ export default function Budgets() {
             <Button label="Si" icon="pi pi-check" severity="danger" onClick={deleteBudget} />
         </React.Fragment>
     );
+    const budgetVatBodyTemplate = (rowData) => {
+        let text = ``;
+        if(rowData.vat === 0){
+            text = `Sin IVA`;
+        }else{
+            text = `${rowData.vat}%`;
+        }
+        return text;
+    };
+    const budgetVatPriceBodyTemplate = (rowData) => {
+        let vat_price = (rowData.price * rowData.vat)/100;
+        return formatCurrency(parseFloat(rowData.price) + vat_price);
+    };
     const clientBodyTemplate = (rowData) => {
         // return rowData.client.name;
         const matchingClient = clients.find((client) => client.id === rowData.client);
         return matchingClient ? matchingClient.name : '';
+    };
+    const getSeverity = (data) => {
+        switch (data.approved) {
+            case true:
+                return 'success';
+
+            case false:
+                return 'danger';
+
+            default:
+                return null;
+        }
+    };
+    const statusBodyTemplate = (data) => {
+        return <Tag value={data.approved === true ? "Aprobado":"Pendiente"} severity={getSeverity(data)}></Tag>;
     };
 
     return (
@@ -234,7 +270,10 @@ export default function Budgets() {
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} presupuestos" globalFilter={globalFilter} header={header}>
                     <Column field="title" header="Título" sortable style={{ minWidth: '12rem' }}></Column>
                     <Column field="price" header="Precio" body={priceBodyTemplate}  sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="invoice_vat" header="IVA" body={budgetVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="price" header="Precio con IVA" body={budgetVatPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="client" header="Cliente" body={clientBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="status" header="Estado" body={statusBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem'}}></Column>
                 </DataTable>
             </div>

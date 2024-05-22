@@ -41,9 +41,9 @@ export default function EditInvoice(){
     const [budgets, setBudgets] = useState([]);
     const [selectedBudget, setSelectedBudget] = useState(null);
     const [selectedVAT, setSelectedVAT] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState(null);
 
     useEffect(() => {
-        console.log("LOCATION: ",location);
         if (location.state && location.state.invoice) {
             // setInvoice(location.state.invoice);
             const { invoice } = location.state;
@@ -51,6 +51,7 @@ export default function EditInvoice(){
             setSelectedClient(invoice.client);
             setSelectedBudget(invoice.budget);
             setSelectedVAT(invoice.vat);
+            setSelectedStatus(invoice.staus);
 
             const formattedPartidas = Object.keys(invoice.data).map((key) => ({
                 title: invoice.data[key].title,

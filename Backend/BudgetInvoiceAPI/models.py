@@ -14,6 +14,8 @@ class Budget(models.Model):
     data = models.JSONField()
     price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True, default=0.00)
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
+    approved = models.BooleanField(default=False, null=True, blank=True)
+    vat = models.IntegerField(default=21)
 
 class Invoice(models.Model):
     title = models.CharField(max_length=255, db_index=True)

@@ -31,6 +31,8 @@ export default function HomePage(){
     const [date, setDate] = useState(null);
     const [clients, setClients] = useState(null);
     const [budgets, setBudgets] = useState(null);
+    const [approvedBudget, setApprovedBudget] = useState(null);
+    const [notApprovedBudgets, setNotApprovedBudget] = useState(null);
     const [invoices, setInvoices] = useState(null);
     const [payedInvoices, setPayedInvoices] = useState(null);
     const [unpayedUnvoices, setunPayedInvoices] = useState(null);
@@ -50,6 +52,14 @@ export default function HomePage(){
             try {
                 const budgets = await getBudgets();
                 setBudgets(budgets);                // console.log(data);
+                const approvedBudget = [];
+                const notApprovedBudgets = [];
+                for(let i = 0; i < budgets.length; i++){
+                    if(budgets[i].approved === true) approvedBudget.push(budgets[i]);
+                    if(budgets[i].approved === false) notApprovedBudgets.push(budgets[i]);
+                }
+                setApprovedBudget(approvedBudget);
+                setNotApprovedBudget(notApprovedBudgets);
             } catch (error) {
                 console.error('Error fetching budgets:', error);
             }
@@ -81,6 +91,8 @@ export default function HomePage(){
     const numberOfInvoices_text = `Número de facturas: ${invoices ? invoices.length : 0}`;
     const numberOfPayedInvoices_text = `Facturas pagadas: ${payedInvoices ? payedInvoices.length : 0}`;
     const numberOfUnPayedInvoices_text = `Facturas sin pagar: ${unpayedUnvoices ? unpayedUnvoices.length : 0}`;
+    const numberOfApprovedBudgets_text = `Presupuestos aprobados: ${approvedBudget ? approvedBudget.length : 0}`;
+    const numberOfNotApprovedBudgets_text = `Presupuestos sin aprobar: ${notApprovedBudgets ? notApprovedBudgets.length : 0}`;
     
     return(
         <div>
@@ -93,6 +105,8 @@ export default function HomePage(){
                 <div className='col'>
                     <Card>
                     <h1>{numberOfBudgets_text}</h1>
+                    <Message severity="success" text={numberOfApprovedBudgets_text} />
+                    <Message severity="error" text={numberOfNotApprovedBudgets_text} />
                     </Card>
                 </div>
                 <div className='col'>

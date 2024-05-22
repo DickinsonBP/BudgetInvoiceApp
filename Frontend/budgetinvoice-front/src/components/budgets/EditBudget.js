@@ -2,8 +2,8 @@
  * React imports
  */
 import React, { useState, useEffect } from 'react';
-import { createBudget, getClients } from '../../services/api';
-import { useNavigate } from 'react-router-dom';
+import { updateBudget, getClients, getBudgets } from '../../services/api';
+import { useNavigate, useLocation } from 'react-router-dom';
 /**
  * Styles
  */
@@ -20,15 +20,46 @@ import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 
-export default function NewBudget(){
+export default function EditBudget(){
+    const location = useLocation();
+    // const [budget, setBudget] = useState(location.state ? location.state.budget : { title: '', client: null, budget: null, price: 0 });
+    const [budget, setBudget] = useState({
+        title: '',
+        client: null,
+        budget: null,
+        price: 0,
+        approved: '',
+        partidas: [{ title: '', entries: [{ text: '', price: 0 }] }]
+    });
+    
     const navaigate = useNavigate();
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
     const [clients, setClients] = useState([]);
-    const [approved, setApproved] = useState(null);
     const [selectedClient, setSelectedClient] = useState(null);
-    const [selectedVAT, setSelectedVAT] = useState(null);
+    const [selectedVAT, setSelectedVAT] = useState(21);
+    const [selectedApproved, setSelectedApproved] = useState(null);
+
+    useEffect(() => {
+        if (location.state && location.state.budget) {
+            // setBudget(location.state.budget);
+            const { budget } = location.state;
+            setBudget(budget);
+            setSelectedClient(budget.client);
+            setSelectedVAT(budget.vat);
+            setSelectedApproved(budget.approved);
+
+            const formattedPartidas = Object.keys(budget.data).map((key) => ({
+                title: budget.data[key].title,
+                entries: budget.data[key].entries.map((entry) => ({
+                    text: entry.text,
+                    price: entry.price
+                }))
+            }));
+            setPartidas(formattedPartidas);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -87,19 +118,19 @@ export default function NewBudget(){
         newPartidas[partidaIndex].entries = newPartidas[partidaIndex].entries.filter((_, i) => i !== entryIndex);
         setPartidas(newPartidas);
     };
+
     const handleCheckboxChange = (e) => {
-        setApproved(e.target.checked);
+        setBudget({ ...budget, approved: e.checked });
     };
 
     const handleSubmit = async (e) => { 
         e.preventDefault();
 
         const budgetData = {
-            title: title,
+            ...budget,
             price: price,
             client: selectedClient,
             vat: selectedVAT.value,
-            approved: approved ? approved : false,
             data: partidas.reduce((acc, partida, index) => {
                 acc[`partida${index + 1}`] = {
                     title: partida.title,
@@ -108,10 +139,9 @@ export default function NewBudget(){
                 return acc;
             }, {})
         };
-        // console.log('Form data:', budgetData);
         try {
-            const response = await createBudget(budgetData);
-            console.log('Budget created:', response);
+            await updateBudget(budget.id, budgetData);
+            // console.log('Budget created:', response);
             navaigate('/budgets');
         } catch (error) {
             console.error('Error creating budget:', error);
@@ -121,10 +151,10 @@ export default function NewBudget(){
     return (
         <div className="card">
             <Card className='card-item'>    
-                <h1>Nuevo presupuesto</h1>
+                <h1>Editar presupuesto</h1>
 
                 <div className='p-field'>
-                    <h3 className='p-field-label'>Cuerpo del presupuesto</h3>
+                    <h3 className='p-field-label'>Cuerpo de la factura</h3>
                     
                     <form>
                         <div className='formgrid grid'>
@@ -132,7 +162,7 @@ export default function NewBudget(){
                                 <FloatLabel>
                                     <InputText 
                                         id="title" 
-                                        value={title} 
+                                        value={budget.title} 
                                         onChange={(e) => setTitle(e.target.value)} 
                                         placeholder="Título" 
                                         className="w-full" 
@@ -170,7 +200,7 @@ export default function NewBudget(){
                                     options={[
                                         { label: '10%', value: 10 },
                                         { label: '21%', value: 21 },
-                                        { label: 'Sin IVA', value: 0 },
+                                        { label: 'Sin IVA', value: 0}
                                     ]} 
                                     onChange={(e) => setSelectedVAT(e.value)} 
                                     placeholder="Selecciona IVA" 
@@ -178,7 +208,7 @@ export default function NewBudget(){
                                 />
                             </div>
                             <div className='field col'>
-                                <Checkbox name='approved' onChange={handleCheckboxChange} checked={approved}></Checkbox>
+                                <Checkbox name='approved' onChange={handleCheckboxChange} checked={budget.approved}></Checkbox>
                                 <label className="ml-2">Aprobado?</label>
                             </div>
                         </div>
@@ -239,7 +269,6 @@ export default function NewBudget(){
                                                             icon="pi pi-trash" 
                                                             severity='danger'
                                                             onClick={() => handleDeleteEntry(index, entryIndex)}
-                                                            type='button'
                                                         />
                                                     </div>
                                                 </div>
@@ -251,7 +280,6 @@ export default function NewBudget(){
                                         icon="pi pi-plus"
                                         severity='secondary'
                                         onClick={() => handleAddEntry(index)}
-                                        type='button'
                                     />
                                 </div>
                             </Card>

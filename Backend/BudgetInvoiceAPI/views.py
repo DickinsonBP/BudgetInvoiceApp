@@ -112,6 +112,17 @@ def invoice_pdf(request, pk):
         "C:/Users/dicki/Desktop/Salida/Facturas"
     )
     return Response(serlized_item.data)
+
+@api_view()
+def budget_pdf(request, pk):
+    budget = get_object_or_404(Budget, pk=pk)
+    serlized_item = BudgetSerializer(budget)
+    create_pdf(
+        "budget",
+        serlized_item.data,
+        "C:/Users/dicki/Desktop/Salida/Presupuestos"
+    )
+    return Response(serlized_item.data)
     
 def create_pdf(doc_type, data, save_path):
     #populate data
@@ -124,6 +135,7 @@ def create_pdf(doc_type, data, save_path):
     render_vars['owner_account_number'] = 'ES63 0182 6240 62 0201590287'
     
     render_vars['doc_title'] = data['title']
+    render_vars['doc_type'] = "Factura" if doc_type == "invoice" else "Presupuesto"
     render_vars['doc_number'] = data['id']
     
     client = get_client_data(data['client'])
@@ -134,14 +146,14 @@ def create_pdf(doc_type, data, save_path):
     render_vars['desc'] = gen_table(data['data'])
     
     template_path = ""
-    if(doc_type == "budget"): template_path = 'templates\budget_A4.html'
-    if(doc_type == "invoice"): 
-        template_path = 'invoice_A4.html'
-        render_vars['subtotal'] = data['price']
-        render_vars['vat'] = data['vat']
-        vat_total = (float(render_vars["subtotal"])*float(render_vars['vat']))/100
-        render_vars['vat_total'] = vat_total
-        render_vars['total'] = "%.2f" % (vat_total + float(render_vars['subtotal']))
+    # if(doc_type == "budget"): template_path = 'invoice_A4.html'
+    # if(doc_type == "invoice"): 
+    template_path = 'document_A4.html'
+    render_vars['subtotal'] = data['price']
+    render_vars['vat'] = data['vat']
+    vat_total = (float(render_vars["subtotal"])*float(render_vars['vat']))/100
+    render_vars['vat_total'] = vat_total
+    render_vars['total'] = "%.2f" % (vat_total + float(render_vars['subtotal']))
     
     
     env = Environment(loader=FileSystemLoader('BudgetInvoiceAPI/templates'))
