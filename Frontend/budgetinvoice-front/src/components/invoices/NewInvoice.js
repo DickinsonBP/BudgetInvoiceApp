@@ -2,12 +2,12 @@
  * React imports
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { createInvoice, getClients, getBudgets } from '../services/api';
+import { createInvoice, getClients, getBudgets } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 /**
  * Styles
  */
-import '../styles/NewBudget.css';
+import '../../styles/NewBudget.css';
 import 'primeflex/primeflex.css';
 /**
  * Components
@@ -129,7 +129,7 @@ export default function NewInvoice(){
         };
         console.log('Form data:', invoiceData);
         try {
-            const response = await createInvoice(invoiceData);
+            await createInvoice(invoiceData);
             // console.log('Invoice created:', response);
             toast.current.show({ severity: 'success', summary: 'Felicidades!', detail: 'Factura creada correctamente', life: 3000 });
             navaigate('/invoices');
@@ -269,6 +269,7 @@ export default function NewInvoice(){
                                                             icon="pi pi-trash" 
                                                             severity='danger'
                                                             onClick={() => handleDeleteEntry(index, entryIndex)}
+                                                            type='button'
                                                         />
                                                     </div>
                                                 </div>
@@ -280,6 +281,7 @@ export default function NewInvoice(){
                                         icon="pi pi-plus"
                                         severity='secondary'
                                         onClick={() => handleAddEntry(index)}
+                                        type='button'
                                     />
                                 </div>
                             </Card>

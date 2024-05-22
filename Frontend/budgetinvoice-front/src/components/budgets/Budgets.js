@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getBudgets, createBudget, updateBudget, apiDeleteBudget, getClients } from '../services/api';
+import { getBudgets, createBudget, updateBudget, apiDeleteBudget, getClients } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';

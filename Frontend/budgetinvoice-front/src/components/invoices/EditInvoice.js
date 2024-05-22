@@ -2,12 +2,12 @@
  * React imports
  */
 import React, { useState, useEffect } from 'react';
-import { createBudget, getClients } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { updateInvoice, getClients, getBudgets } from '../../services/api';
+import { useNavigate, useLocation } from 'react-router-dom';
 /**
  * Styles
  */
-import '../styles/NewBudget.css';
+import '../../styles/NewBudget.css';
 import 'primeflex/primeflex.css';
 /**
  * Components
@@ -18,15 +18,50 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
+import { Checkbox } from 'primereact/checkbox';
 
-export default function NewBudget(){
+export default function EditInvoice(){
+    const location = useLocation();
+    // const [invoice, setInvoice] = useState(location.state ? location.state.invoice : { title: '', client: null, budget: null, price: 0 });
+    const [invoice, setInvoice] = useState({
+        title: '',
+        client: null,
+        budget: null,
+        price: 0,
+        status: '',
+        partidas: [{ title: '', entries: [{ text: '', price: 0 }] }]
+    });
+    
     const navaigate = useNavigate();
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
-    
+    const [budgets, setBudgets] = useState([]);
+    const [selectedBudget, setSelectedBudget] = useState(null);
+    const [selectedVAT, setSelectedVAT] = useState(null);
+
+    useEffect(() => {
+        console.log("LOCATION: ",location);
+        if (location.state && location.state.invoice) {
+            // setInvoice(location.state.invoice);
+            const { invoice } = location.state;
+            setInvoice(invoice);
+            setSelectedClient(invoice.client);
+            setSelectedBudget(invoice.budget);
+            setSelectedVAT(invoice.vat);
+
+            const formattedPartidas = Object.keys(invoice.data).map((key) => ({
+                title: invoice.data[key].title,
+                entries: invoice.data[key].entries.map((entry) => ({
+                    text: entry.text,
+                    price: entry.price
+                }))
+            }));
+            setPartidas(formattedPartidas);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -41,8 +76,21 @@ export default function NewBudget(){
                 console.error('Error fetching clients:', error);
             }
         };
+        const fetchBudgets = async () => {
+            try {
+                const data = await getBudgets();
+                const formattedBudget = data.map(budget => ({
+                    label: budget.title,
+                    value: budget.id
+                }));
+                setBudgets(formattedBudget);
+            } catch (error) {
+                console.error('Error fetching budgets:', error);
+            }
+        };
         
         fetchClients();
+        fetchBudgets();
     }, []);
 
     useEffect(() => {
@@ -86,13 +134,19 @@ export default function NewBudget(){
         setPartidas(newPartidas);
     };
 
+    const handleCheckboxChange = (e) => {
+        setInvoice({ ...invoice, status: e.checked });
+    };
+
     const handleSubmit = async (e) => { 
         e.preventDefault();
 
-        const budgetData = {
-            title: title,
+        const invoiceData = {
+            ...invoice,
             price: price,
             client: selectedClient,
+            budget: selectedBudget,
+            vat: selectedVAT,
             data: partidas.reduce((acc, partida, index) => {
                 acc[`partida${index + 1}`] = {
                     title: partida.title,
@@ -101,23 +155,23 @@ export default function NewBudget(){
                 return acc;
             }, {})
         };
-        console.log('Form data:', budgetData);
+        console.log('Form data:', invoiceData);
         try {
-            const response = await createBudget(budgetData);
-            console.log('Budget created:', response);
-            navaigate('/budgets');
+            await updateInvoice(invoice.id, invoiceData);
+            // console.log('Invoice created:', response);
+            navaigate('/invoices');
         } catch (error) {
-            console.error('Error creating budget:', error);
+            console.error('Error creating invoice:', error);
         }
     };
 
     return (
         <div className="card">
             <Card className='card-item'>    
-                <h1>Nuevo presupuesto</h1>
+                <h1>Editar factura</h1>
 
                 <div className='p-field'>
-                    <h3 className='p-field-label'>Cuerpo del presupuesto</h3>
+                    <h3 className='p-field-label'>Cuerpo de la factura</h3>
                     
                     <form>
                         <div className='formgrid grid'>
@@ -125,7 +179,7 @@ export default function NewBudget(){
                                 <FloatLabel>
                                     <InputText 
                                         id="title" 
-                                        value={title} 
+                                        value={invoice.title} 
                                         onChange={(e) => setTitle(e.target.value)} 
                                         placeholder="Título" 
                                         className="w-full" 
@@ -156,6 +210,31 @@ export default function NewBudget(){
                                     placeholder="Selecciona un Cliente" 
                                     className="w-full" 
                                 />
+                            </div>
+                            <div className="field col">
+                                <Dropdown 
+                                    value={selectedBudget} 
+                                    options={budgets} 
+                                    onChange={(e) => setSelectedBudget(e.value)} 
+                                    placeholder="Selecciona un presupuesto" 
+                                    className="w-full" 
+                                />
+                            </div>
+                            <div className="field col">
+                                <Dropdown 
+                                    value={selectedVAT} 
+                                    options={[
+                                        { label: '10%', value: 10 },
+                                        { label: '21%', value: 21 }
+                                    ]} 
+                                    onChange={(e) => setSelectedVAT(e.value)} 
+                                    placeholder="Selecciona IVA" 
+                                    className="w-full" 
+                                />
+                            </div>
+                            <div className='field col'>
+                                <Checkbox name='status' onChange={handleCheckboxChange} checked={invoice.status}></Checkbox>
+                                <label className="ml-2">Pagada?</label>
                             </div>
                         </div>
                         {partidas.map((partida, index) => (
@@ -235,7 +314,7 @@ export default function NewBudget(){
                                 <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
                             </div>
                             <div className='col-2'>
-                                <Button type="button" severity="success" raised label="Guardar presupuesto" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
+                                <Button type="button" severity="success" raised label="Guardar factura" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
                             </div>
                         </div>
                     </form>

@@ -3,14 +3,14 @@ import './App.css';
 import { Routes, Route } from 'react-router-dom';
 
 /*Components*/
-import Navbar  from './components/Navbar';
-import HomePage from './components/HomePage';
-import Clients from './components/Clients';
-import Budgets from './components/Budgets';
-import NewBudget from './components/NewBudget';
-import Invoices from './components/Invoices';
-import NewInvoice from './components/NewInvoice';
-import EditInvoice from './components/EditInvoice';
+import Navbar  from './components/other/Navbar';
+import HomePage from './components/other/HomePage';
+import Clients from './components/clients/Clients';
+import Budgets from './components/budgets/Budgets';
+import NewBudget from './components/budgets/NewBudget';
+import Invoices from './components/invoices/Invoices';
+import NewInvoice from './components/invoices/NewInvoice';
+import EditInvoice from './components/invoices/EditInvoice';
 
 function App() {
   return (

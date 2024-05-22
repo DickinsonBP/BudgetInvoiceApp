@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getInvoices, createInvoice, updateInvoice, apiDeleteInvoice, getClients, getBudgets, exportInvoiceToPDF } from '../services/api';
+import { getInvoices, createInvoice, updateInvoice, apiDeleteInvoice, getClients, getBudgets, exportInvoiceToPDF } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
@@ -14,7 +14,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
-import '../styles/Invoice.css';
+import '../../styles/Invoice.css';
 
 export default function Invoices() {
     let emptyInvoice = {

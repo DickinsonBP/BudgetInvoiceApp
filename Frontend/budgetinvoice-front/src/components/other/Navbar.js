@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React from 'react'; 
-import SBlogo from '../assets/images/logo.png';
-import '../styles/Nav.css';
+import SBlogo from '../../assets/images/logo.png';
+import '../../styles/Nav.css';
 
 
 import { Menubar } from 'primereact/menubar';

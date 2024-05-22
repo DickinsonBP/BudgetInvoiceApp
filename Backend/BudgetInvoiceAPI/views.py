@@ -162,8 +162,8 @@ def create_pdf(doc_type, data, save_path):
     file_content = pdfkit.from_string(
         html_out,
         doc_name,
-        #css=r'D:\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
-        css=r'C:\Users\dicki\Desktop\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
+        css=r'D:\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
+        #css=r'C:\Users\dicki\Desktop\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
         options=options,
         configuration=config
     )

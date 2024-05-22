@@ -19,16 +19,6 @@ export const getClients = async() => {
     }
 } 
 
-export const getNumberOfClients = async () => {
-    try{
-        const response = await axios.get(`${API_URL}/clients`);
-        return response.data;
-    }catch (error){
-        console.error('Error fetching number of clients:',error);
-        throw error;
-    }
-}
-
 /**
  * Function to create (POST) a new client
  * @param {*} client 
@@ -86,15 +76,7 @@ export const getBudgets = async() => {
         throw error;
     }
 } 
-export const getNumberOfBudgets = async () => {
-    try{
-        const response = await axios.get(`${API_URL}/budgets`);
-        return response.data;
-    }catch (error){
-        console.error('Error fetching number of budgets:',error);
-        throw error;
-    }
-}
+
 /**
  * Function to create (POST) a new budget
  * @param {*} budget 
@@ -150,16 +132,6 @@ export const getInvoices = async() => {
         throw error;
     }
 } 
-
-export const getNumberOfInvoices = async () => {
-    try{
-        const response = await axios.get(`${API_URL}/invoices`);
-        return response.data;
-    }catch (error){
-        console.error('Error fetching number of invoices:',error);
-        throw error;
-    }
-}
 
 export const createInvoice = async (invoice) => {
     try {

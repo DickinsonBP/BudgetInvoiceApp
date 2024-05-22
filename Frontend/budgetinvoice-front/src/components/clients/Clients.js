@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getClients, createClient, updateClient, apiDeleteClient } from '../services/api';
+import { getClients, createClient, updateClient, apiDeleteClient } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
