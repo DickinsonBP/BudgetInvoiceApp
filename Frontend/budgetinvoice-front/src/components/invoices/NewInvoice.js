@@ -132,7 +132,7 @@ export default function NewInvoice(){
             title: title,
             price: price,
             client: selectedClient,
-            budget: selectedBudget?.value,
+            budget: selectedBudget,
             vat: selectedVAT,
             status: status ? status : false,
             data: {
