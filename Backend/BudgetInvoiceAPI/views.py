@@ -21,6 +21,7 @@ import pdfkit
 from pdfkit import configuration
 
 import os
+import datetime
 # Create your views here.
 
 
@@ -132,11 +133,14 @@ def create_pdf(doc_type, data, save_path):
     render_vars['owner_nif'] = '55486382D'
     render_vars['owner_phone'] = 687311861
     render_vars['owner_email'] = 'serviciosbedoya@hotmail.com'
-    render_vars['owner_account_number'] = 'ES63 0182 6240 62 0201590287'
+    if(doc_type == "invoice"):
+        render_vars['payment_text'] = 'Pago a la siguiente cuenta'
+        render_vars['owner_account_number'] = 'ES63 0182 6240 62 0201590287'
     
-    render_vars['doc_title'] = data['title']
+    render_vars['doc_title'] = gen_realId(data["id"]) +"_"+ data['title']
     render_vars['doc_type'] = "Factura" if doc_type == "invoice" else "Presupuesto"
-    render_vars['doc_number'] = data['id']
+    
+    render_vars['doc_number'] = gen_realId(data["id"])
     
     client = get_client_data(data['client'])
     
@@ -145,9 +149,6 @@ def create_pdf(doc_type, data, save_path):
     render_vars['address'] = client['address']
     render_vars['desc'] = gen_table(data['data'])
     
-    template_path = ""
-    # if(doc_type == "budget"): template_path = 'invoice_A4.html'
-    # if(doc_type == "invoice"): 
     template_path = 'document_A4.html'
     render_vars['subtotal'] = data['price']
     render_vars['vat'] = data['vat']
@@ -179,16 +180,34 @@ def create_pdf(doc_type, data, save_path):
         options=options,
         configuration=config
     )
+
+def gen_realId(id):
+    current_year = str(datetime.datetime.now().year)[2:]
+    return current_year + str(id).zfill(3)
     
     
 def gen_table(description):
     html = ""
-    for partida, value in description.items():
-        html += "<tr><td colspan='2'><b><i>{}</i></b></td></tr>".format(value['title'])
-        for entry in value['entries']:
-            price = "{:.2f}".format(entry['price'])
-            html += "<tr><td>{}</td><td style='text-align:right'>{}€</td></tr>".format(entry['text'], price)
-
+    for items in description.keys():
+        if(type(description[items]) != list):
+            for key, value in description[items].items():
+                if(key == 'title'): html += "<tr><td colspan='2'><b><i>{}</i></b></td></tr>".format(value)
+                elif (key == 'entries'):
+                    for entry in value:
+                        price = "{:.2f}".format(entry['price'])
+                        html += """
+                            <tr>
+                                <td style="display: flex; flex-direction: row-reverse;">
+                                    <span style="flex: 1;">{}</span>
+                                </td>
+                                <td style="display: flex; flex-direction: row-reverse;">
+                                    <span style="text-align: right;">{}€</span>
+                                </td>
+                            </tr>""".format(entry['text'], price)
+    if(description['notes']):
+        html += "<tr><td colspan='2'><b><i>Nota</i></b></td></tr>"
+        for note in description['notes']:
+            html += "<tr><td colspan='2'>{}</td></tr>".format(note)
     return html
 
 def get_invoice_data(id):

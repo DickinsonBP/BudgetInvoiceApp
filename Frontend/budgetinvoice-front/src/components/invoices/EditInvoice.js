@@ -180,13 +180,16 @@ export default function EditInvoice(){
             client: selectedClient,
             budget: selectedBudget,
             vat: selectedVAT,
-            data: partidas.reduce((acc, partida, index) => {
-                acc[`partida${index + 1}`] = {
-                    title: partida.title,
-                    entries: partida.entries.map(entry => ({ text: entry.text, price: entry.price }))
-                };
-                return acc;
-            }, {})
+            data: {
+                ...partidas.reduce((acc, partida, index) => {
+                    acc[`partida${index + 1}`] = {
+                        title: partida.title,
+                        entries: partida.entries.map(entry => ({ text: entry.text, price: entry.price }))
+                    };
+                    return acc;
+                }, {}),
+                notes: notes.map(note => note.text)
+            }
         };
         console.log('Form data:', invoiceData);
         try {
@@ -213,9 +216,6 @@ export default function EditInvoice(){
                     
                     <form>
                         <div className='grid'>
-                            <div className='col-2'>
-                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
-                            </div>
                             <div className='col-2'>
                                 <Button type="button" severity="success" raised label="Guardar factura" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
                             </div>
@@ -387,6 +387,9 @@ export default function EditInvoice(){
                                 />
                             </div>
                         )}
+                    <div className='col-2'>
+                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
+                    </div>
                     </form>
                 </div>
             </Card>

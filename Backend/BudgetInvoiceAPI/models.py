@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 
 # Create your models here.
@@ -23,6 +24,6 @@ class Invoice(models.Model):
     data = models.JSONField()
     status = models.BooleanField(default=False, null=True, blank=True)
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
-    budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True, blank=True)
+    budget = models.ForeignKey(Budget, on_delete=models.PROTECT, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True, default=0.00)
     vat = models.IntegerField(default=21)
