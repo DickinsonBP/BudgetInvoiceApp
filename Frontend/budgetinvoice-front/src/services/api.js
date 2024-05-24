@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://127.168.1.55:8000/api';
 
 /**
  * Clients Backend connections
