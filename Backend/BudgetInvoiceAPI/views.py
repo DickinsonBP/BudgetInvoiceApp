@@ -110,7 +110,8 @@ def invoice_pdf(request, pk):
     create_pdf(
         "invoice",
         serlized_item.data,
-        "C:/Users/dicki/Desktop/Salida/Facturas"
+        # "C:/Users/dicki/Desktop/Salida/Facturas"
+        "/media/pi/DICKINSON/DICKINSON/Salida/Facturas"
     )
     return Response(serlized_item.data)
 
@@ -121,7 +122,8 @@ def budget_pdf(request, pk):
     create_pdf(
         "budget",
         serlized_item.data,
-        "C:/Users/dicki/Desktop/Salida/Presupuestos"
+        # "C:/Users/dicki/Desktop/Salida/Presupuestos"
+        "/media/pi/DICKINSON/DICKINSON/Salida/Presupuestos"
     )
     return Response(serlized_item.data)
     
@@ -162,7 +164,8 @@ def create_pdf(doc_type, data, save_path):
     
     html_out = template.render(render_vars)
     
-    path_wkhtmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+    # path_wkhtmltopdf = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+    path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'
     config = configuration(wkhtmltopdf=path_wkhtmltopdf)
     
     options = {
@@ -175,7 +178,8 @@ def create_pdf(doc_type, data, save_path):
     file_content = pdfkit.from_string(
         html_out,
         doc_name,
-        css=r'D:\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
+        css='/home/pi/Projects/BudgetInvoiceApp/Backend/BudgetInvoiceAPI/templates/invoice.css',
+        # css=r'D:\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
         #css=r'C:\Users\dicki\Desktop\CODES\BudgetInvoiceApp\Backend\BudgetInvoiceAPI\templates\invoice.css',
         options=options,
         configuration=config
