@@ -16,6 +16,7 @@ import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
+import { ToggleButton } from 'primereact/togglebutton';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
@@ -29,6 +30,8 @@ export default function NewBudget(){
     const [approved, setApproved] = useState(null);
     const [selectedClient, setSelectedClient] = useState(null);
     const [selectedVAT, setSelectedVAT] = useState(null);
+    const [showNotes, setShowNotes] = useState(false);
+    const [notes, setNotes] = useState([{text:''}]);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -90,6 +93,18 @@ export default function NewBudget(){
     const handleCheckboxChange = (e) => {
         setApproved(e.target.checked);
     };
+    const handleAddNote = () => {
+        setNotes([...notes, {text:''}]);
+    }
+    const handleNoteChange = (e, index) => {
+        const newNotes = [...notes];
+        newNotes[index].text = e.target.value;
+        setNotes(newNotes);
+    };
+    const handleDeleteNote = (index) => {
+        const newNotes = notes.filter((_, i) => i !== index);
+        setNotes(newNotes);
+    };
 
     const handleSubmit = async (e) => { 
         e.preventDefault();
@@ -98,17 +113,22 @@ export default function NewBudget(){
             title: title,
             price: price,
             client: selectedClient,
-            vat: selectedVAT.value,
+            vat: selectedVAT ? selectedVAT.value : 0,
             approved: approved ? approved : false,
-            data: partidas.reduce((acc, partida, index) => {
-                acc[`partida${index + 1}`] = {
-                    title: partida.title,
-                    entries: partida.entries.map(entry => ({ text: entry.text, price: entry.price }))
-                };
-                return acc;
-            }, {})
+            data: {
+                    ...partidas.reduce((acc, partida, index) => {
+                                acc[`partida${index + 1}`] = {
+                                    title: partida.title,
+                                    entries: partida.entries.map(entry => ({ text: entry.text, price: entry.price }))
+                                };
+                                return acc;
+                            }, 
+                        {}
+                    ),
+                    notes: notes.map(note => note.text)
+            }
         };
-        // console.log('Form data:', budgetData);
+        console.log('Form data:', budgetData);
         try {
             const response = await createBudget(budgetData);
             console.log('Budget created:', response);
@@ -256,6 +276,52 @@ export default function NewBudget(){
                                 </div>
                             </Card>
                         ))}
+                        <div>
+                            <ToggleButton 
+                                checked={showNotes}
+                                onChange={(e) => setShowNotes(e.value)}
+                                onLabel='Añadir Nota'
+                                offLabel='Ocultar Nota'
+                                onIcon="pi pi-check" 
+                                offIcon="pi pi-times"
+                            />
+                        </div>
+                        {showNotes && (
+                            <div>
+                                {notes.map((note, index) => (
+                                    <div className='formgrid grid' key={index}>
+                                        <div className='col-12'>
+                                            <FloatLabel>
+                                                <InputText 
+                                                    id={`note-${index}`} 
+                                                    value={note.text} 
+                                                    onChange={(e) => handleNoteChange(e, index)} 
+                                                    placeholder="Añadir Nota" 
+                                                    className="w-full" 
+                                                />
+                                                <label htmlFor={`note-${index}`}>Añadir Nota</label>
+                                            </FloatLabel>
+                                        </div>
+                                        <div className='col-4'>
+                                            <Button
+                                                label='Eliminar Nota'
+                                                icon="pi pi-trash" 
+                                                severity='danger'
+                                                onClick={() => handleDeleteNote(index)}
+                                                type='button'
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                                <Button 
+                                    label="Añadir Nota"
+                                    icon="pi pi-plus"
+                                    severity='secondary'
+                                    onClick={handleAddNote}
+                                    type='button'
+                                />
+                            </div>
+                        )}
                         <div className='grid'>
                             <div className='col-2'>
                                 <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
