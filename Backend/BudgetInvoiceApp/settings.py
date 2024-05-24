@@ -158,5 +158,6 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
     'http://192.168.1.55:3000'
 ]
