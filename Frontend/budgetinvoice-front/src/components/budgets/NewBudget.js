@@ -22,7 +22,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 
 export default function NewBudget(){
-    const navaigate = useNavigate();
+    const navigate = useNavigate();
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
@@ -132,48 +132,55 @@ export default function NewBudget(){
         try {
             const response = await createBudget(budgetData);
             console.log('Budget created:', response);
-            navaigate('/budgets');
+            navigate('/budgets');
         } catch (error) {
             console.error('Error creating budget:', error);
         }
     };
 
+    const handleReturn = () => {
+        navigate('/budgets');
+    } 
+
     return (
         <div className="card">
-            <Card className='card-item'>    
+            <Card className='card-item'>
+                <Button type="button" severity="secondary" raised label="Volver" icon="pi pi-chevron-left"  className="p-mt-2" onClick={handleReturn} />
                 <h1>Nuevo presupuesto</h1>
 
                 <div className='p-field'>
                     <h3 className='p-field-label'>Cuerpo del presupuesto</h3>
                     
                     <form>
+                        <div className='grid'>
+                            <div className='col-2'>
+                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
+                            </div>
+                            <div className='col-2'>
+                                <Button type="button" severity="success" raised label="Guardar presupuesto" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
+                            </div>
+                        </div>
                         <div className='formgrid grid'>
                             <div className='field col'>
-                                <FloatLabel>
-                                    <InputText 
-                                        id="title" 
-                                        value={title} 
-                                        onChange={(e) => setTitle(e.target.value)} 
-                                        placeholder="Título" 
-                                        className="w-full" 
-                                    />
-                                    <label htmlFor="title">Título</label>
-                                </FloatLabel>
+                                <InputText 
+                                    id="title" 
+                                    value={title} 
+                                    onChange={(e) => setTitle(e.target.value)} 
+                                    placeholder="Título" 
+                                    className="w-full" 
+                                />
                             </div>
                             <div className="field col">
-                                <FloatLabel>
-                                    <InputNumber 
-                                        id="price" 
-                                        value={price} 
-                                        // onValueChange={(e) => setPrice(e.value)} 
-                                        mode="currency" 
-                                        currency="EUR" 
-                                        locale="es-ES" 
-                                        placeholder="Precio total" 
-                                        className="w-full" 
-                                    />
-                                    <label htmlFor="price">Precio total</label>
-                                </FloatLabel>
+                                <InputNumber 
+                                    id="price" 
+                                    value={price} 
+                                    // onValueChange={(e) => setPrice(e.value)} 
+                                    mode="currency" 
+                                    currency="EUR" 
+                                    locale="es-ES" 
+                                    placeholder="Precio total" 
+                                    className="w-full" 
+                                />
                             </div>
                             <div className="field col">
                                 <Dropdown 
@@ -229,18 +236,14 @@ export default function NewBudget(){
                                             <div className="field col-12 md:col-10">
                                                 <div className='formgroup-inline'>
                                                     <div className='field col-4'>
-                                                        <FloatLabel>
-                                                            <InputText
-                                                                value={entry.text}
-                                                                onChange={(e) => handleEntryChange(e, index, entryIndex, 'text')}
-                                                                placeholder="Texto"
-                                                                className='w-full'
-                                                            />
-                                                            <label htmlFor={`text-${index}-${entryIndex}`}>Texto</label>
-                                                        </FloatLabel>
+                                                        <InputText
+                                                            value={entry.text}
+                                                            onChange={(e) => handleEntryChange(e, index, entryIndex, 'text')}
+                                                            placeholder="Texto"
+                                                            className='w-full'
+                                                        />
                                                     </div>
                                                     <div className='field col-3'>
-                                                        <FloatLabel>
                                                             <InputNumber 
                                                                 id="price" 
                                                                 value={entry.price} 
@@ -250,8 +253,6 @@ export default function NewBudget(){
                                                                 locale="es-ES" 
                                                                 placeholder="Precio" 
                                                             />
-                                                            <label htmlFor={`price-${index}-${entryIndex}`}>Precio</label>
-                                                        </FloatLabel>
                                                     </div>
                                                     <div className='field col-2'>
                                                         <Button
@@ -289,20 +290,17 @@ export default function NewBudget(){
                         {showNotes && (
                             <div>
                                 {notes.map((note, index) => (
-                                    <div className='formgrid grid' key={index}>
-                                        <div className='col-12'>
-                                            <FloatLabel>
-                                                <InputText 
-                                                    id={`note-${index}`} 
-                                                    value={note.text} 
-                                                    onChange={(e) => handleNoteChange(e, index)} 
-                                                    placeholder="Añadir Nota" 
-                                                    className="w-full" 
+                                    <div className='grid' key={index}>
+                                        <div className='col'>
+                                            <InputText 
+                                                id={`note-${index}`} 
+                                                value={note.text} 
+                                                onChange={(e) => handleNoteChange(e, index)} 
+                                                placeholder="Añadir Nota" 
+                                                className="w-full" 
                                                 />
-                                                <label htmlFor={`note-${index}`}>Añadir Nota</label>
-                                            </FloatLabel>
                                         </div>
-                                        <div className='col-4'>
+                                        <div className='col-fixed'>
                                             <Button
                                                 label='Eliminar Nota'
                                                 icon="pi pi-trash" 
@@ -322,14 +320,7 @@ export default function NewBudget(){
                                 />
                             </div>
                         )}
-                        <div className='grid'>
-                            <div className='col-2'>
-                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
-                            </div>
-                            <div className='col-2'>
-                                <Button type="button" severity="success" raised label="Guardar presupuesto" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
-                            </div>
-                        </div>
+                        
                     </form>
                 </div>
             </Card>

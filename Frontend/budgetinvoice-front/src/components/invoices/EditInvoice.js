@@ -16,6 +16,7 @@ import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
+import { ToggleButton } from 'primereact/togglebutton';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
@@ -32,7 +33,7 @@ export default function EditInvoice(){
         partidas: [{ title: '', entries: [{ text: '', price: 0 }] }]
     });
     
-    const navaigate = useNavigate();
+    const navigate = useNavigate();
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
@@ -42,6 +43,8 @@ export default function EditInvoice(){
     const [selectedBudget, setSelectedBudget] = useState(null);
     const [selectedVAT, setSelectedVAT] = useState(null);
     const [selectedStatus, setSelectedStatus] = useState(null);
+    const [showNotes, setShowNotes] = useState(false);
+    const [notes, setNotes] = useState([{text:''}]);
 
     useEffect(() => {
         if (location.state && location.state.invoice) {
@@ -53,14 +56,30 @@ export default function EditInvoice(){
             setSelectedVAT(invoice.vat);
             setSelectedStatus(invoice.staus);
 
-            const formattedPartidas = Object.keys(invoice.data).map((key) => ({
-                title: invoice.data[key].title,
-                entries: invoice.data[key].entries.map((entry) => ({
-                    text: entry.text,
-                    price: entry.price
-                }))
-            }));
+            // const formattedPartidas = Object.keys(invoice.data).map((key) => ({
+            //     title: invoice.data[key].title,
+            //     entries: invoice.data[key].entries.map((entry) => ({
+            //         text: entry.text,
+            //         price: entry.price
+            //     }))
+            // }));
+            const formattedPartidas = Object.keys(invoice.data).map((key) => {
+                const partida = invoice.data[key];
+                return {
+                    title: partida.title,
+                    entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
+                        text: entry.text,
+                        price: entry.price
+                    })) : []
+                };
+            });
             setPartidas(formattedPartidas);
+
+            if (invoice.data.notes) {
+                setNotes(Array.isArray(invoice.data.notes) ? invoice.data.notes.map(note => ({ text: note })) : []);
+            } else {
+                setNotes([{ text: '' }]);
+            }
         }
     }, [location.state]);
 
@@ -139,6 +158,19 @@ export default function EditInvoice(){
         setInvoice({ ...invoice, status: e.checked });
     };
 
+    const handleAddNote = () => {
+        setNotes([...notes, {text:''}]);
+    }
+    const handleNoteChange = (e, index) => {
+        const newNotes = [...notes];
+        newNotes[index].text = e.target.value;
+        setNotes(newNotes);
+    };
+    const handleDeleteNote = (index) => {
+        const newNotes = notes.filter((_, i) => i !== index);
+        setNotes(newNotes);
+    };
+
     const handleSubmit = async (e) => { 
         e.preventDefault();
 
@@ -160,48 +192,55 @@ export default function EditInvoice(){
         try {
             await updateInvoice(invoice.id, invoiceData);
             // console.log('Invoice created:', response);
-            navaigate('/invoices');
+            navigate('/invoices');
         } catch (error) {
             console.error('Error creating invoice:', error);
         }
     };
 
+    const handleReturn = () => {
+        navigate('/invoices');
+    }
+
     return (
         <div className="card">
-            <Card className='card-item'>    
+            <Card className='card-item'>
+                <Button type="button" severity="secondary" raised label="Volver" icon="pi pi-chevron-left"  className="p-mt-2" onClick={handleReturn} />
                 <h1>Editar factura</h1>
 
                 <div className='p-field'>
                     <h3 className='p-field-label'>Cuerpo de la factura</h3>
                     
                     <form>
+                        <div className='grid'>
+                            <div className='col-2'>
+                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
+                            </div>
+                            <div className='col-2'>
+                                <Button type="button" severity="success" raised label="Guardar factura" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
+                            </div>
+                        </div>
                         <div className='formgrid grid'>
                             <div className='field col'>
-                                <FloatLabel>
-                                    <InputText 
-                                        id="title" 
-                                        value={invoice.title} 
-                                        onChange={(e) => setTitle(e.target.value)} 
-                                        placeholder="Título" 
-                                        className="w-full" 
-                                    />
-                                    <label htmlFor="title">Título</label>
-                                </FloatLabel>
+                                <InputText 
+                                    id="title" 
+                                    value={invoice.title} 
+                                    onChange={(e) => setTitle(e.target.value)} 
+                                    placeholder="Título" 
+                                    className="w-full" 
+                                />
                             </div>
                             <div className="field col">
-                                <FloatLabel>
-                                    <InputNumber 
-                                        id="price" 
-                                        value={price} 
-                                        // onValueChange={(e) => setPrice(e.value)} 
-                                        mode="currency" 
-                                        currency="EUR" 
-                                        locale="es-ES" 
-                                        placeholder="Precio total" 
-                                        className="w-full" 
-                                    />
-                                    <label htmlFor="price">Precio total</label>
-                                </FloatLabel>
+                                <InputNumber 
+                                    id="price" 
+                                    value={price} 
+                                    // onValueChange={(e) => setPrice(e.value)} 
+                                    mode="currency" 
+                                    currency="EUR" 
+                                    locale="es-ES" 
+                                    placeholder="Precio total" 
+                                    className="w-full" 
+                                />
                             </div>
                             <div className="field col">
                                 <Dropdown 
@@ -265,29 +304,23 @@ export default function EditInvoice(){
                                             <div className="field col-12 md:col-10">
                                                 <div className='formgroup-inline'>
                                                     <div className='field col-4'>
-                                                        <FloatLabel>
-                                                            <InputText
-                                                                value={entry.text}
-                                                                onChange={(e) => handleEntryChange(e, index, entryIndex, 'text')}
-                                                                placeholder="Texto"
-                                                                className='w-full'
-                                                            />
-                                                            <label htmlFor={`text-${index}-${entryIndex}`}>Texto</label>
-                                                        </FloatLabel>
+                                                        <InputText
+                                                            value={entry.text}
+                                                            onChange={(e) => handleEntryChange(e, index, entryIndex, 'text')}
+                                                            placeholder="Texto"
+                                                            className='w-full'
+                                                        />
                                                     </div>
                                                     <div className='field col-3'>
-                                                        <FloatLabel>
-                                                            <InputNumber 
-                                                                id="price" 
-                                                                value={entry.price} 
-                                                                onValueChange={(e) => handleEntryChange(e, index, entryIndex, 'price')}
-                                                                mode="currency" 
-                                                                currency="EUR" 
-                                                                locale="es-ES" 
-                                                                placeholder="Precio" 
-                                                            />
-                                                            <label htmlFor={`price-${index}-${entryIndex}`}>Precio</label>
-                                                        </FloatLabel>
+                                                        <InputNumber 
+                                                            id="price" 
+                                                            value={entry.price} 
+                                                            onValueChange={(e) => handleEntryChange(e, index, entryIndex, 'price')}
+                                                            mode="currency" 
+                                                            currency="EUR" 
+                                                            locale="es-ES" 
+                                                            placeholder="Precio" 
+                                                        />
                                                     </div>
                                                     <div className='field col-2'>
                                                         <Button
@@ -306,18 +339,54 @@ export default function EditInvoice(){
                                         icon="pi pi-plus"
                                         severity='secondary'
                                         onClick={() => handleAddEntry(index)}
+                                        type='button'
                                     />
                                 </div>
                             </Card>
                         ))}
-                        <div className='grid'>
-                            <div className='col-2'>
-                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
-                            </div>
-                            <div className='col-2'>
-                                <Button type="button" severity="success" raised label="Guardar factura" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
-                            </div>
+                        <div>
+                            <ToggleButton 
+                                checked={showNotes}
+                                onChange={(e) => setShowNotes(e.value)}
+                                onLabel='Añadir Nota'
+                                offLabel='Ocultar Nota'
+                                onIcon="pi pi-check" 
+                                offIcon="pi pi-times"
+                            />
                         </div>
+                        {showNotes && (
+                            <div>
+                                {notes.map((note, index) => (
+                                    <div className='grid' key={index}>
+                                        <div className='col'>
+                                            <InputText 
+                                                id={`note-${index}`} 
+                                                value={note.text} 
+                                                onChange={(e) => handleNoteChange(e, index)} 
+                                                placeholder="Añadir Nota" 
+                                                className="w-full" 
+                                            />
+                                        </div>
+                                        <div className='col-fixed'>
+                                            <Button
+                                                label='Eliminar Nota'
+                                                icon="pi pi-trash" 
+                                                severity='danger'
+                                                onClick={() => handleDeleteNote(index)}
+                                                type='button'
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                                <Button 
+                                    label="Añadir Nota"
+                                    icon="pi pi-plus"
+                                    severity='secondary'
+                                    onClick={handleAddNote}
+                                    type='button'
+                                />
+                            </div>
+                        )}
                     </form>
                 </div>
             </Card>
