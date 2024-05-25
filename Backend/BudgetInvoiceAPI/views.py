@@ -170,7 +170,12 @@ def create_pdf(doc_type, data, save_path):
     
     options = {
         "enable-local-file-access": "",
-        "encoding":"UTF-8"
+        "encoding": "UTF-8",
+        "page-size": "A4",
+        "margin-top": "10mm",
+        "margin-right": "10mm",
+        "margin-bottom": "10mm",
+        "margin-left": "10mm",
     }
     
     doc_name = os.path.join(save_path, render_vars['doc_title']+".pdf")
