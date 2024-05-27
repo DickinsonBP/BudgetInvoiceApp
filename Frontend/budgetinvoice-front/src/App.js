@@ -13,6 +13,8 @@ import Invoices from './components/invoices/Invoices';
 import NewInvoice from './components/invoices/NewInvoice';
 import EditInvoice from './components/invoices/EditInvoice';
 
+import MyDocument from './components/other/GeneratePDF';
+
 function App() {
   return (
     <div className='App'>

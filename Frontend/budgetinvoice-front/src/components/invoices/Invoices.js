@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getInvoices, createInvoice, updateInvoice, apiDeleteInvoice, getClients, getBudgets, exportInvoiceToPDF } from '../../services/api';
+import { getInvoices, createInvoice, updateInvoice, apiDeleteInvoice, getClients, getBudgets } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
@@ -14,7 +14,24 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
+import MyDocument from '../other/GeneratePDF';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 import '../../styles/Invoice.css';
+
+const data = {
+    doc_title: 'Factura_001',
+    owner_name: 'Omar de Jesus Bedoya Orrego',
+    owner_nif: '55486382D',
+    owner_phone: '687311861',
+    owner_email: 'serviciosbedoya@hotmail.com',
+    client_name: 'Cliente Ejemplo',
+    address: 'Calle Ejemplo, 123',
+    desc: 'Descripción del servicio prestado',
+    subtotal: '100.00',
+    vat: '21',
+    total: '121.00'
+};
 
 export default function Invoices() {
     let emptyInvoice = {
@@ -169,7 +186,7 @@ export default function Invoices() {
 
     const exportToPDF = async (invoice) => {
         try{
-            await exportInvoiceToPDF(invoice.id);
+            // await exportInvoiceToPDF(invoice.id);
             toast.current.show({ severity: 'success', summary: 'Perfecto!', detail: 'Ya esta disponible la factura en PDF', life: 3000 });
         }catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al exportar a PDF la factura', life: 3000 });
@@ -204,7 +221,12 @@ export default function Invoices() {
                 <Button icon="pi pi-pencil" rounded raised className="mr-2" onClick={() => editInvoice(rowData)} />
                 <Button icon="pi pi-trash" rounded raised className="mr-2" severity="danger" onClick={() => confirmDeleteInvoice(rowData)} />
                 <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick={() => console.log("HOLA")} />
-                <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" onClick={() => exportToPDF(rowData)} />
+                {/* <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" onClick={() => exportToPDF(rowData)} /> */}
+                <PDFDownloadLink document={<MyDocument document={data}/>} fileName={data.doc_title}>
+                    {({ blob, url, loading, error }) =>
+                        loading ? 'Loading document...' : <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" onClick={() => exportToPDF(rowData)} />
+                    }
+                </PDFDownloadLink>
             </React.Fragment>
         );
     };
