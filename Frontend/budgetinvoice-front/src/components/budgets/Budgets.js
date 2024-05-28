@@ -14,6 +14,9 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
+import GeneratePDF from '../other/GeneratePDF';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 export default function Budgets() {
     const navigate = useNavigate();
 
@@ -195,7 +198,14 @@ export default function Budgets() {
                 <Button icon="pi pi-pencil" rounded raised className="mr-2" onClick={() => editBudget(rowData)} />
                 <Button icon="pi pi-trash" rounded raised className="mr-2" severity="danger" onClick={() => confirmDeleteBudget(rowData)} />
                 <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick={() => console.log("HOLA")} />
-                <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" onClick={() => exportToPdf(rowData)} />
+                <PDFDownloadLink
+                    document={<GeneratePDF document={rowData} />}
+                    fileName={`presupuesto_${rowData?.id || 'unknown'}.pdf`}
+                >
+                    {({ blob, url, loading, error }) => 
+                        <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" label={loading ? 'Cargando...' : 'Descargar PDF'} />
+                    }
+                </PDFDownloadLink>
             </React.Fragment>
         );
     };

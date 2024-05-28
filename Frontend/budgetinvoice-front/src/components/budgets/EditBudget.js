@@ -275,6 +275,7 @@ export default function EditBudget(){
                                             icon="pi pi-trash"
                                             className="p-button-sm p-button-danger"
                                             onClick={() => handleDeletePartida(index)}
+                                            type='button'
                                         />
                                     </div>
                                     {partida.entries.map((entry, entryIndex) => (

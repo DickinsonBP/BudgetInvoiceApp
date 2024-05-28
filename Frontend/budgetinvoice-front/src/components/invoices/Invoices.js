@@ -20,15 +20,15 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import '../../styles/Invoice.css';
 
 const data = {
-    doc_title: 'Factura_001',
-    owner_name: 'Omar de Jesus Bedoya Orrego',
-    owner_nif: '55486382D',
-    owner_phone: '687311861',
-    owner_email: 'serviciosbedoya@hotmail.com',
-    client_name: 'Cliente Ejemplo',
-    address: 'Calle Ejemplo, 123',
-    desc: 'Descripción del servicio prestado',
-    subtotal: '100.00',
+    title: 'Factura_001',
+    client: 'Omar de Jesus Bedoya Orrego',
+    // owner_nif: '55486382D',
+    // owner_phone: '687311861',
+    // owner_email: 'serviciosbedoya@hotmail.com',
+    // client_name: 'Cliente Ejemplo',
+    // address: 'Calle Ejemplo, 123',
+    // desc: 'Descripción del servicio prestado',
+    price: '100.00',
     vat: '21',
     total: '121.00'
 };

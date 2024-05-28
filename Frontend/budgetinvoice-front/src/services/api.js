@@ -18,7 +18,17 @@ export const getClients = async() => {
         console.error('Error fetching clients:',error);
         throw error;
     }
-} 
+}
+
+export const getClientByID = async(id) =>{
+    try{
+        const response = await axios.get(`${API_URL}/clients/${id}`);
+        return response.data;
+    }catch(error){
+        console.error('Error fecthing client by id:',error);
+        throw error;
+    }
+}
 
 /**
  * Function to create (POST) a new client
