@@ -20,6 +20,10 @@ import { ToggleButton } from 'primereact/togglebutton';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
+import { Calendar } from 'primereact/calendar';
+
+import { format, parse } from 'date-fns';
+import es from 'date-fns/locale/es';
 
 export default function EditInvoice(){
     const location = useLocation();
@@ -43,6 +47,7 @@ export default function EditInvoice(){
     const [selectedBudget, setSelectedBudget] = useState(null);
     const [selectedVAT, setSelectedVAT] = useState(null);
     const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
     const [showNotes, setShowNotes] = useState(false);
     const [notes, setNotes] = useState([{text:''}]);
 
@@ -55,14 +60,9 @@ export default function EditInvoice(){
             setSelectedBudget(invoice.budget);
             setSelectedVAT(invoice.vat);
             setSelectedStatus(invoice.staus);
+            const parsedDate = invoice.date ? parse(invoice.date, 'yyyy-MM-dd', new Date()) : null;
+            setSelectedDate(parsedDate);
 
-            // const formattedPartidas = Object.keys(invoice.data).map((key) => ({
-            //     title: invoice.data[key].title,
-            //     entries: invoice.data[key].entries.map((entry) => ({
-            //         text: entry.text,
-            //         price: entry.price
-            //     }))
-            // }));
             const formattedPartidas = Object.keys(invoice.data).map((key) => {
                 const partida = invoice.data[key];
                 return {
@@ -173,13 +173,14 @@ export default function EditInvoice(){
 
     const handleSubmit = async (e) => { 
         e.preventDefault();
-
+        const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd', { locale: es }) : '';
         const invoiceData = {
             ...invoice,
             price: price,
             client: selectedClient,
             budget: selectedBudget,
             vat: selectedVAT,
+            date: formattedDate,
             data: {
                 ...partidas.reduce((acc, partida, index) => {
                     acc[`partida${index + 1}`] = {
@@ -269,6 +270,9 @@ export default function EditInvoice(){
                                     placeholder="Selecciona IVA" 
                                     className="w-full" 
                                 />
+                            </div>
+                            <div className='field col'>
+                                <Calendar value={selectedDate} onChange={(e) => setSelectedDate(e.value)} showIcon locale="es" dateFormat='dd/mm/yy'/>
                             </div>
                             <div className='field col'>
                                 <Checkbox name='status' onChange={handleCheckboxChange} checked={invoice.status}></Checkbox>

@@ -17,6 +17,8 @@ import { Tag } from 'primereact/tag';
 import GeneratePDF from '../other/GeneratePDF';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import saveAs from 'file-saver';
+import { format } from 'date-fns';
+import es from 'date-fns/locale/es';
 
 import '../../styles/Invoice.css';
 
@@ -193,7 +195,7 @@ export default function Invoices() {
 
     
     const actionBodyTemplate = (rowData) => {
-
+        //TODO: cambiar nombre del archivo a guardar por Factura_id.pdf
         const downloadPdf = async () => {
             const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice'/>).toBlob();
             saveAs(blob, 'statement');
@@ -249,6 +251,12 @@ export default function Invoices() {
         let vat_price = (rowData.price * rowData.vat)/100;
         return formatCurrency(parseFloat(rowData.price) + vat_price);
     };
+
+    const dateBodyTemplate = (rowData) => {
+        const formattedDate = rowData.date ? format(rowData.date, 'dd/MM/yyyy', { locale: es }) : '';
+        return formattedDate;
+    }
+
     const clientBodyTemplate = (rowData) => {
         const matchingClient = clients.find((client) => client.id === rowData.client);
         return matchingClient ? matchingClient.name : '';
@@ -290,6 +298,7 @@ export default function Invoices() {
                     <Column field="invoice_price" header="Precio de la factura" body={invoicePriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="invoice_vat" header="IVA" body={invoiceVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="price" header="Precio con IVA" body={invoiceVatPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="date" header="Fecha" body={dateBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="status" header="Estado" body={statusBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ minWidth: '2rem'}}></Column>
                 </DataTable>

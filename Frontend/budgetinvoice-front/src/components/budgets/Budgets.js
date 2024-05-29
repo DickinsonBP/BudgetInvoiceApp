@@ -17,6 +17,8 @@ import { Tag } from 'primereact/tag';
 import GeneratePDF from '../other/GeneratePDF';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import saveAs from 'file-saver';
+import { format } from 'date-fns';
+import es from 'date-fns/locale/es';
 
 export default function Budgets() {
     const navigate = useNavigate();
@@ -182,6 +184,7 @@ export default function Budgets() {
 
     const actionBodyTemplate = (rowData) => {
         const downloadPdf = async () => {
+            //TODO: cambiar nombre del archivo a guardar por Presupuesto_id.pdf
             const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget'/>).toBlob();
             saveAs(blob, 'statement');
         };
@@ -238,6 +241,12 @@ export default function Budgets() {
         const matchingClient = clients.find((client) => client.id === rowData.client);
         return matchingClient ? matchingClient.name : '';
     };
+
+    const dateBodyTemplate = (rowData) => {
+        const formattedDate = rowData.date ? format(rowData.date, 'dd/MM/yyyy', { locale: es }) : '';
+        return formattedDate;
+    }
+
     const getSeverity = (data) => {
         switch (data.approved) {
             case true:
@@ -269,6 +278,7 @@ export default function Budgets() {
                     <Column field="invoice_vat" header="IVA" body={budgetVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="price" header="Precio con IVA" body={budgetVatPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="client" header="Cliente" body={clientBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="date" header="Fecha" body={dateBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
                     <Column field="status" header="Estado" body={statusBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem'}}></Column>
                 </DataTable>

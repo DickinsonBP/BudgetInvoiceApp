@@ -21,12 +21,17 @@ import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
+import { Calendar } from 'primereact/calendar';
+
+import { format } from 'date-fns';
+import es from 'date-fns/locale/es';
 
 export default function NewInvoice(){
     const navigate = useNavigate();
     const toast = useRef(null);
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
+    const [invoiceDate, setInvoiceDate] = useState(null);
     const [price, setPrice] = useState('');
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
@@ -127,13 +132,14 @@ export default function NewInvoice(){
 
     const handleSubmit = async (e) => { 
         e.preventDefault();
-
+        const formattedDate = invoiceDate ? format(invoiceDate, 'yyyy-MM-dd', { locale: es }) : '';
         const invoiceData = {
             title: title,
             price: price,
             client: selectedClient,
             budget: selectedBudget,
             vat: selectedVAT,
+            date: formattedDate,
             status: status ? status : false,
             data: {
                 ...partidas.reduce((acc, partida, index) => {
@@ -230,6 +236,9 @@ export default function NewInvoice(){
                                     placeholder="Selecciona IVA" 
                                     className="w-full" 
                                 />
+                            </div>
+                            <div className='field col'>
+                                <Calendar value={invoiceDate} onChange={(e) => setInvoiceDate(e.value)} showIcon locale='es' dateFormat="dd/mm/yy"/>
                             </div>
                             <div className='field col'>
                                 <Checkbox name='status' onChange={handleCheckboxChange} checked={status}></Checkbox>

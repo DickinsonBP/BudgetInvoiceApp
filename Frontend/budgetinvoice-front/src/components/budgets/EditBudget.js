@@ -22,6 +22,9 @@ import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
 
+import { format, parse } from 'date-fns';
+import es from 'date-fns/locale/es';
+
 export default function EditBudget(){
     const location = useLocation();
     // const [budget, setBudget] = useState(location.state ? location.state.budget : { title: '', client: null, budget: null, price: 0 });
@@ -53,7 +56,8 @@ export default function EditBudget(){
             setSelectedClient(budget.client);
             setSelectedVAT(budget.vat);
             setSelectedApproved(budget.approved);
-            setSelectedDate(budget.date);
+            const parsedDate = budget.date ? parse(budget.date, 'yyyy-MM-dd', new Date()) : null;
+            setSelectedDate(parsedDate);
 
             const formattedPartidas = Object.keys(budget.data).map((key) => {
                 const partida = budget.data[key];
@@ -137,10 +141,6 @@ export default function EditBudget(){
         setBudget({ ...budget, approved: e.checked });
     };
 
-    const handleDateChange = (e) => {
-        setSelectedDate(e.value);
-    };
-
     const handleAddNote = () => {
         setNotes([...notes, {text:''}]);
     }
@@ -156,13 +156,13 @@ export default function EditBudget(){
 
     const handleSubmit = async (e) => { 
         e.preventDefault();
-
+        const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd', { locale: es }) : '';
         const budgetData = {
             ...budget,
             price: price,
             client: selectedClient,
             vat: selectedVAT.value,
-            date: selectedDate.value,
+            date: formattedDate,
             data: {
                     ...partidas.reduce((acc, partida, index) => {
                     acc[`partida${index + 1}`] = {
@@ -249,7 +249,7 @@ export default function EditBudget(){
                                 />
                             </div>
                             <div className='field col'>
-                                <Calendar value={selectedDate} onChange={handleDateChange} showIcon locale="es"/>
+                                <Calendar value={selectedDate} onChange={(e) => setSelectedDate(e.value)} showIcon locale="es" dateFormat='dd/mm/yy'/>
                             </div>
                             <div className='field col'>
                                 <Checkbox name='approved' onChange={handleCheckboxChange} checked={budget.approved}></Checkbox>

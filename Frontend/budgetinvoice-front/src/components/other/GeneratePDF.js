@@ -1,35 +1,57 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Image, Text, View, Page, Document, StyleSheet, renderToFile } from '@react-pdf/renderer';
 import logo from '../../assets/images/logo.png';
+import { format } from 'date-fns';
+import es from 'date-fns/locale/es';
+import { getClientByID } from '../../services/api';
 
 const GeneratePDF = ({document, doc_type}) => {
 
   const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
   const [notes, setNotes] = useState([]);
+  const [date, setDate] = useState(null);
+  const [client, setClient] = useState(null);
 
   useEffect(() => {
       if(document && document.data){
-          const formattedPartidas = Object.keys(document.data).map((key) => {
-              const partida = document.data[key];
-              return {
-                  title: partida.title,
-                  entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
-                      text: entry.text,
-                      price: entry.price
-                  })) : []
-              };
-          });
-          setPartidas(formattedPartidas);
+        const formattedPartidas = Object.keys(document.data).map((key) => {
+            const partida = document.data[key];
+            return {
+                title: partida.title,
+                entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
+                    text: entry.text,
+                    price: entry.price
+                })) : []
+            };
+        });
+        setPartidas(formattedPartidas);
 
-          if (document.data.notes) {
-            // setNotes(Array.isArray(document.data.notes) ? document.data.notes.map(note => ({ text: note })) : []);
-            setNotes(document.data.notes);
-          } else {
-            setNotes([]);
+        if (document.data.notes) {
+          // setNotes(Array.isArray(document.data.notes) ? document.data.notes.map(note => ({ text: note })) : []);
+          setNotes(document.data.notes);
+        } else {
+          setNotes([]);
+        }
+        const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
+        setDate(formattedDate);
+
+        const fetchClient = async() => {
+          try {
+            const data = await getClientByID(document.client);
+            setClient(data);
+          } catch (error) {
+              console.error('Error fetching client:', error);
           }
+        }
+        fetchClient();
       }
 
   });
+
+  const formatNumber = (value) => {
+    const floatValue = parseFloat(value);
+    return floatValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
 
   const styles = StyleSheet.create({
     page: { fontSize: 11, paddingTop: 20, paddingLeft: 40, paddingRight: 40, lineHeight: 1.5, flexDirection: 'column' },
@@ -50,7 +72,7 @@ const GeneratePDF = ({document, doc_type}) => {
 
     partidaTitle: { fontSize: 10, fontWeight: 'bold', marginTop: 10, marginBottom: 4 },
 
-    document: { fontWeight: 'bold', fontSize: 20 },
+    document: { fontWeight: 'bold', fontSize: 15 },
 
     invoiceNumber: { fontSize: 11, fontWeight: 'bold' },
 
@@ -85,25 +107,26 @@ const GeneratePDF = ({document, doc_type}) => {
   );
 
   const Address = () => (
+    //TODO: Generar id a partir de la fecha.
     <View style={styles.titleContainer}>
       <View style={styles.spaceBetween}>
         <View>
-          <Text style={styles.document}>{doc_type === "invoice" ? "Factura" : "Presupuesto"} </Text>
-          <Text style={styles.invoiceNumber}>Numero: {document.id} </Text>
+          <Text style={styles.document}>{doc_type === "invoice" ? "Factura" : "Presupuesto"} {document.id}</Text>
         </View>
       </View>
     </View>
   );
 
   const UserAddress = () => (
+    //TODO: Obtener los datos del cliente
     <View style={styles.titleContainer}>
       <View style={styles.spaceBetween}>
         <View style={{ maxWidth: 200 }}>
-          <Text style={styles.address}>{document.client ? document.client.name : 'Sin datos de cliente'}</Text>
-          <Text style={styles.address}>{document.client ? document.client.nif : 'Sin datos de cliente'}</Text>
-          <Text style={styles.address}>{document.client ? document.client.address : 'Sin datos de cliente'}</Text>
+          <Text style={styles.address}>{client ? client.name : 'Sin datos de cliente'}</Text>
+          <Text style={styles.address}>{client ? client.nif : 'Sin datos de cliente'}</Text>
+          <Text style={styles.address}>{client ? client.address : 'Sin datos de cliente'}</Text>
         </View>
-        <Text style={styles.addressTitle}>Fecha: {document.date}</Text>
+        <Text style={styles.addressTitle}>Fecha: {date}</Text>
       </View>
     </View>
   );
@@ -133,7 +156,7 @@ const GeneratePDF = ({document, doc_type}) => {
               <Text>{entry.text}</Text>
             </View>
             <View style={styles.tbody}>
-              <Text>{entry.price}</Text>
+              <Text>{formatNumber(entry.price)}€</Text>
             </View>
           </View>
         ))}
@@ -153,7 +176,7 @@ const GeneratePDF = ({document, doc_type}) => {
         <Text>Total</Text>
       </View>
       <View style={styles.tbody}>
-        <Text>{document.price}</Text>
+        <Text>{formatNumber(document.price)}€</Text>
       </View>
     </View>
   );
@@ -163,6 +186,8 @@ const GeneratePDF = ({document, doc_type}) => {
       {notes && notes.map((note, index) => (
         <Text key={index} style={styles.note}>{note.text}</Text>
       ))}
+      <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
+      <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
   );
 
