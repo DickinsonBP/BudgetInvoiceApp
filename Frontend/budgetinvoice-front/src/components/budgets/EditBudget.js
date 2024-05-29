@@ -20,6 +20,7 @@ import { ToggleButton } from 'primereact/togglebutton';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
+import { Calendar } from 'primereact/calendar';
 
 export default function EditBudget(){
     const location = useLocation();
@@ -41,25 +42,19 @@ export default function EditBudget(){
     const [selectedClient, setSelectedClient] = useState(null);
     const [selectedVAT, setSelectedVAT] = useState(21);
     const [selectedApproved, setSelectedApproved] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
     const [showNotes, setShowNotes] = useState(true);
     const [notes, setNotes] = useState([{text:''}]);
 
     useEffect(() => {
         if (location.state && location.state.budget) {
-            // setBudget(location.state.budget);
             const { budget } = location.state;
             setBudget(budget);
             setSelectedClient(budget.client);
             setSelectedVAT(budget.vat);
             setSelectedApproved(budget.approved);
+            setSelectedDate(budget.date);
 
-            // const formattedPartidas = Object.keys(budget.data).map((key) => ({
-            //     title: budget.data[key].title,
-            //     entries: budget.data[key].entries.map((entry) => ({
-            //         text: entry.text,
-            //         price: entry.price
-            //     }))
-            // }));
             const formattedPartidas = Object.keys(budget.data).map((key) => {
                 const partida = budget.data[key];
                 return {
@@ -142,6 +137,10 @@ export default function EditBudget(){
         setBudget({ ...budget, approved: e.checked });
     };
 
+    const handleDateChange = (e) => {
+        setSelectedDate(e.value);
+    };
+
     const handleAddNote = () => {
         setNotes([...notes, {text:''}]);
     }
@@ -163,6 +162,7 @@ export default function EditBudget(){
             price: price,
             client: selectedClient,
             vat: selectedVAT.value,
+            date: selectedDate.value,
             data: {
                     ...partidas.reduce((acc, partida, index) => {
                     acc[`partida${index + 1}`] = {
@@ -247,6 +247,9 @@ export default function EditBudget(){
                                     placeholder="Selecciona IVA" 
                                     className="w-full" 
                                 />
+                            </div>
+                            <div className='field col'>
+                                <Calendar value={selectedDate} onChange={handleDateChange} showIcon locale="es"/>
                             </div>
                             <div className='field col'>
                                 <Checkbox name='approved' onChange={handleCheckboxChange} checked={budget.approved}></Checkbox>

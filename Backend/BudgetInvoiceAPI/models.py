@@ -1,5 +1,6 @@
 from typing import Any
 from django.db import models
+import BudgetInvoiceApp.settings as settings
 
 # Create your models here.
 class Client(models.Model):
@@ -11,7 +12,7 @@ class Client(models.Model):
     
 class Budget(models.Model):
     title = models.CharField(max_length=255, db_index=True)
-    # date = models.DateField()
+    date = models.DateField(null=True, blank=True)
     data = models.JSONField()
     price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True, default=0.00)
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
@@ -20,7 +21,7 @@ class Budget(models.Model):
 
 class Invoice(models.Model):
     title = models.CharField(max_length=255, db_index=True)
-    # date = models.DateField()
+    date = models.DateField(null=True, blank=True)
     data = models.JSONField()
     status = models.BooleanField(default=False, null=True, blank=True)
     client = models.ForeignKey(Client, on_delete=models.PROTECT)

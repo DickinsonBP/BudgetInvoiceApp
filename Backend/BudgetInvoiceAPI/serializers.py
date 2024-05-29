@@ -20,7 +20,7 @@ class BudgetSerializer(serializers.ModelSerializer):
     client = serializers.PrimaryKeyRelatedField(queryset=Client.objects.all())
     class Meta:
         model = Budget
-        fields = ['id','title','data','price','client','approved','vat']
+        fields = ['id','title','data','price','client','approved','vat','date']
         extra_kwargs = {
             'approved': {'allow_null': True, 'required': False},
             'vat': {'allow_null': True, 'required': False},
@@ -32,7 +32,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     budget = serializers.PrimaryKeyRelatedField(queryset=Budget.objects.all())
     class Meta:
         model = Invoice
-        fields = ['id','title','data','client','budget','price','vat','status']
+        fields = ['id','title','data','client','budget','price','vat','status','date']
         extra_kwargs = {
             'budget': {'allow_null': True, 'required': False},
             'status': {'allow_null': True, 'required': False},

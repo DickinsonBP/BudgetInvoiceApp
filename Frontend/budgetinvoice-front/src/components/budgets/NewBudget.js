@@ -20,11 +20,16 @@ import { ToggleButton } from 'primereact/togglebutton';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
+import { Calendar } from 'primereact/calendar';
+
+import { format } from 'date-fns';
+import es from 'date-fns/locale/es';
 
 export default function NewBudget(){
     const navigate = useNavigate();
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
+    const [budgetDate, setBudgetDate] = useState(null);
     const [price, setPrice] = useState('');
     const [clients, setClients] = useState([]);
     const [approved, setApproved] = useState(null);
@@ -108,13 +113,14 @@ export default function NewBudget(){
 
     const handleSubmit = async (e) => { 
         e.preventDefault();
-
+        const formattedDate = budgetDate ? format(budgetDate, 'yyyy-MM-dd', { locale: es }) : '';
         const budgetData = {
             title: title,
             price: price,
             client: selectedClient,
             vat: selectedVAT ? selectedVAT.value : 0,
             approved: approved ? approved : false,
+            date: formattedDate,
             data: {
                     ...partidas.reduce((acc, partida, index) => {
                                 acc[`partida${index + 1}`] = {
@@ -128,6 +134,7 @@ export default function NewBudget(){
                     notes: notes.map(note => note.text)
             }
         };
+        console.log("NEW",budgetData);
         try {
             const response = await createBudget(budgetData);
             navigate('/budgets');
@@ -201,6 +208,9 @@ export default function NewBudget(){
                                     placeholder="Selecciona IVA" 
                                     className="w-full" 
                                 />
+                            </div>
+                            <div className='field col'>
+                                <Calendar value={budgetDate} onChange={(e) => setBudgetDate(e.value)} showIcon locale='es' dateFormat="dd/mm/yy"/>
                             </div>
                             <div className='field col'>
                                 <Checkbox name='approved' onChange={handleCheckboxChange} checked={approved}></Checkbox>
