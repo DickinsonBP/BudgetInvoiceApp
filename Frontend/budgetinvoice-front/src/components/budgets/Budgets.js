@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getBudgets, createBudget, updateBudget, apiDeleteBudget, getClients, exportBudgetToPDF } from '../../services/api';
+import { getBudgets, createBudget, updateBudget, apiDeleteBudget, getClients, getClientByID } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
@@ -185,7 +185,8 @@ export default function Budgets() {
     const actionBodyTemplate = (rowData) => {
         const downloadPdf = async () => {
             //TODO: cambiar nombre del archivo a guardar por Presupuesto_id.pdf
-            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget'/>).toBlob();
+            const client = await getClientByID(rowData.client);
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget' client={client}/>).toBlob();
             saveAs(blob, 'statement');
         };
         return (

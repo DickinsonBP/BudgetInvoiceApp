@@ -3,14 +3,12 @@ import { Image, Text, View, Page, Document, StyleSheet, renderToFile } from '@re
 import logo from '../../assets/images/logo.png';
 import { format } from 'date-fns';
 import es from 'date-fns/locale/es';
-import { getClientByID } from '../../services/api';
 
-const GeneratePDF = ({document, doc_type}) => {
+const GeneratePDF = ({document, doc_type, client}) => {
 
   const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
   const [notes, setNotes] = useState([]);
   const [date, setDate] = useState(null);
-  const [client, setClient] = useState(null);
 
   useEffect(() => {
       if(document && document.data){
@@ -34,16 +32,6 @@ const GeneratePDF = ({document, doc_type}) => {
         }
         const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
         setDate(formattedDate);
-
-        const fetchClient = async() => {
-          try {
-            const data = await getClientByID(document.client);
-            setClient(data);
-          } catch (error) {
-              console.error('Error fetching client:', error);
-          }
-        }
-        fetchClient();
       }
 
   });

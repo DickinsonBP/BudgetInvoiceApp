@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getInvoices, createInvoice, updateInvoice, apiDeleteInvoice, getClients, getBudgets } from '../../services/api';
+import { getInvoices, createInvoice, updateInvoice, apiDeleteInvoice, getClients, getClientByID, getBudgets } from '../../services/api';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Toolbar } from 'primereact/toolbar';
@@ -197,7 +197,8 @@ export default function Invoices() {
     const actionBodyTemplate = (rowData) => {
         //TODO: cambiar nombre del archivo a guardar por Factura_id.pdf
         const downloadPdf = async () => {
-            const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice'/>).toBlob();
+            const client = await getClientByID(rowData.client);
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice' client={client}/>).toBlob();
             saveAs(blob, 'statement');
         };
 
