@@ -15,7 +15,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 
 import GeneratePDF from '../other/GeneratePDF';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
+import saveAs from 'file-saver';
 
 export default function Budgets() {
     const navigate = useNavigate();
@@ -158,16 +159,6 @@ export default function Budgets() {
         dt.current.exportCSV();
     };
 
-    const exportToPdf = async (budget) => {
-        try{
-            await exportBudgetToPDF(budget.id);
-            toast.current.show({ severity: 'success', summary: 'Perfecto!', detail: 'Ya esta disponible el presupuesto en PDF', life: 3000 });
-        }catch (error) {
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al exportar a PDF el presupuesto', life: 3000 });
-            console.error('Error deleting user:',error);
-        }
-    }
-
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
         let _budget = { ...budget };
@@ -190,19 +181,16 @@ export default function Budgets() {
     };
 
     const actionBodyTemplate = (rowData) => {
+        const downloadPdf = async () => {
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget'/>).toBlob();
+            saveAs(blob, 'statement');
+        };
         return (
             <React.Fragment>
                 <Button icon="pi pi-pencil" rounded raised className="mr-2" onClick={() => editBudget(rowData)} />
                 <Button icon="pi pi-trash" rounded raised className="mr-2" severity="danger" onClick={() => confirmDeleteBudget(rowData)} />
                 <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick='' />
-                {/* <PDFDownloadLink
-                    document={<GeneratePDF document={rowData} />}
-                    fileName={`presupuesto_${rowData?.id || 'unknown'}.pdf`}
-                >
-                    {({ blob, url, loading, error }) => 
-                        <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" label={loading ? 'Cargando...' : 'Descargar PDF'} />
-                    }
-                </PDFDownloadLink> */}
+                <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" onClick={downloadPdf} />
             </React.Fragment>
         );
     };
