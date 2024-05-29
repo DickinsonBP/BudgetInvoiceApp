@@ -128,10 +128,8 @@ export default function NewBudget(){
                     notes: notes.map(note => note.text)
             }
         };
-        console.log('Form data:', budgetData);
         try {
             const response = await createBudget(budgetData);
-            console.log('Budget created:', response);
             navigate('/budgets');
         } catch (error) {
             console.error('Error creating budget:', error);

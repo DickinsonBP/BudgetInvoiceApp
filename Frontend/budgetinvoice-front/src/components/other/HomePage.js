@@ -51,7 +51,7 @@ export default function HomePage(){
         const fetchNumberOfBudgets = async () => {
             try {
                 const budgets = await getBudgets();
-                setBudgets(budgets);                // console.log(data);
+                setBudgets(budgets);
                 const approvedBudget = [];
                 const notApprovedBudgets = [];
                 for(let i = 0; i < budgets.length; i++){

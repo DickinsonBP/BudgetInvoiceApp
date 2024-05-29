@@ -35,7 +35,6 @@ export default function Clients() {
             try {
                 const data = await getClients();
                 setData(data);
-                // console.log(data);
             } catch (error) {
                 console.error('Error fetching clients:', error);
             }
@@ -61,7 +60,6 @@ export default function Clients() {
 
     const saveClient = async (e) => {
         setSubmitted(true);
-        console.log(client);
         if (client.name.trim()) {
             let _clients = [...data];
             let _client = { ...client };
@@ -80,7 +78,6 @@ export default function Clients() {
                 try{
                     const response = await createClient(client);
                     _clients.push(_client);
-                    console.log('Client created:', response);
                     toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Cliente Creado', life: 3000 });
                 }catch(error){
                     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al crear un nuevo cliente', life: 3000 });

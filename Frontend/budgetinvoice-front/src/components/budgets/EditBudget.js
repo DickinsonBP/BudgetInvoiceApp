@@ -49,7 +49,6 @@ export default function EditBudget(){
             // setBudget(location.state.budget);
             const { budget } = location.state;
             setBudget(budget);
-            console.log(budget);
             setSelectedClient(budget.client);
             setSelectedVAT(budget.vat);
             setSelectedApproved(budget.approved);
@@ -177,7 +176,6 @@ export default function EditBudget(){
         };
         try {
             await updateBudget(budget.id, budgetData);
-            // console.log('Budget created:', response);
             navigate('/budgets');
         } catch (error) {
             console.error('Error creating budget:', error);

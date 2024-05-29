@@ -191,10 +191,8 @@ export default function EditInvoice(){
                 notes: notes.map(note => note.text)
             }
         };
-        console.log('Form data:', invoiceData);
         try {
             await updateInvoice(invoice.id, invoiceData);
-            // console.log('Invoice created:', response);
             navigate('/invoices');
         } catch (error) {
             console.error('Error creating invoice:', error);

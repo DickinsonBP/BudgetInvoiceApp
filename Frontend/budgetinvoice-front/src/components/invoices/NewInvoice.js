@@ -146,10 +146,8 @@ export default function NewInvoice(){
                 notes: notes.map(note => note.text)
             }
         };
-        console.log('Form data:', invoiceData);
         try {
             await createInvoice(invoiceData);
-            // console.log('Invoice created:', response);
             toast.current.show({ severity: 'success', summary: 'Felicidades!', detail: 'Factura creada correctamente', life: 3000 });
             navigate('/invoices');
         } catch (error) {

@@ -44,7 +44,6 @@ export default function Budgets() {
             try {
                 const clients = await getClients();
                 setClients(clients);
-                // console.log(data);
             } catch (error) {
                 console.error('Error fetching clients:', error);
             }
@@ -97,7 +96,6 @@ export default function Budgets() {
 
     const saveBudget = async (e) => {
         setSubmitted(true);
-        console.log(budget);
         if (budget.name.trim()) {
             let _budgets = [...data];
             let _budget = { ...budget };
@@ -116,7 +114,6 @@ export default function Budgets() {
                 try{
                     const response = await createBudget(budget);
                     _budgets.push(_budget);
-                    console.log('Budget created:', response);
                     toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Presupuesto Creado', life: 3000 });
                 }catch(error){
                     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al crear un nuevo presupuesto', life: 3000 });
@@ -197,15 +194,15 @@ export default function Budgets() {
             <React.Fragment>
                 <Button icon="pi pi-pencil" rounded raised className="mr-2" onClick={() => editBudget(rowData)} />
                 <Button icon="pi pi-trash" rounded raised className="mr-2" severity="danger" onClick={() => confirmDeleteBudget(rowData)} />
-                <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick={() => console.log("HOLA")} />
-                <PDFDownloadLink
+                <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick='' />
+                {/* <PDFDownloadLink
                     document={<GeneratePDF document={rowData} />}
                     fileName={`presupuesto_${rowData?.id || 'unknown'}.pdf`}
                 >
                     {({ blob, url, loading, error }) => 
                         <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" label={loading ? 'Cargando...' : 'Descargar PDF'} />
                     }
-                </PDFDownloadLink>
+                </PDFDownloadLink> */}
             </React.Fragment>
         );
     };
