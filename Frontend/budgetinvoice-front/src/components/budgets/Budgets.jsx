@@ -41,6 +41,8 @@ export default function Budgets() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
+    const [pdfUrl, setPdfUrl] = useState('');
+    const [pdfVisible, setPdfVisible] = useState(false);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -183,18 +185,30 @@ export default function Budgets() {
     };
 
     const actionBodyTemplate = (rowData) => {
-        const downloadPdf = async () => {
-            //TODO: cambiar nombre del archivo a guardar por Presupuesto_id.pdf
+        const showPdf = async () => {
             const client = await getClientByID(rowData.client);
-            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget' client={client}/>).toBlob();
-            saveAs(blob, 'statement');
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget' client={client} />).toBlob();
+            const pdfUrl = URL.createObjectURL(blob);
+            setPdfUrl(pdfUrl);
+            console.log("PDFURL: ",pdfUrl);
+            setPdfVisible(true);
+        };
+    
+        const hidePdf = () => {
+            setPdfVisible(false);
+            URL.revokeObjectURL(pdfUrl);
         };
         return (
             <React.Fragment>
                 <Button icon="pi pi-pencil" rounded raised className="mr-2" onClick={() => editBudget(rowData)} />
                 <Button icon="pi pi-trash" rounded raised className="mr-2" severity="danger" onClick={() => confirmDeleteBudget(rowData)} />
-                <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick='' />
-                <Button icon="pi pi-file-pdf" rounded raised className="mr-2" severity="success" onClick={downloadPdf} />
+                <Button icon="pi pi-search" rounded raised className="mr-2" severity="secondary" onClick={showPdf} />
+                <Dialog visible={pdfVisible} onHide={hidePdf} style={{ width: '100vw', maxWidth: '900px' }}>
+                    <iframe src={pdfUrl} style={{ width: '100%', height: 'calc(80vh - 80px)' }} title="PDF Viewer" />
+                    <footer>
+                        <Button label="Cerrar" onClick={hidePdf} />
+                    </footer>
+                </Dialog>
             </React.Fragment>
         );
     };
