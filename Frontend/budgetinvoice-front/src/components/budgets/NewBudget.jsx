@@ -60,7 +60,7 @@ export default function NewBudget(){
             const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
             return acc + partidaTotal;
         }, 0);
-        setPrice(total);
+        setPrice(total.setFixed(2));
     }, [partidas]);
 
     const handleAddPartida = () => {
