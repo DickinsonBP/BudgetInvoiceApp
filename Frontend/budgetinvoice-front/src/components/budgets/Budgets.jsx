@@ -187,7 +187,7 @@ export default function Budgets() {
     const actionBodyTemplate = (rowData) => {
         const showPdf = async () => {
             const client = await getClientByID(rowData.client);
-            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget' client={client} />).toBlob();
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='budget' client={client} doc_number={rowData.doc_number} />).toBlob();
             const pdfUrl = URL.createObjectURL(blob);
             setPdfUrl(pdfUrl);
             console.log("PDFURL: ",pdfUrl);

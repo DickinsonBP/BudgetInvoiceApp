@@ -8,11 +8,14 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
   const [notes, setNotes] = useState([]);
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState([]);
   const [rendered, setRendered] = useState(false);
+  const [totalWitVat, setTotalWithVat] = useState(0);
+  const [vatTotal, setVatTotal] = useState(0);
 
   useEffect(() => {
     if (!rendered && document && document.data) {
+
       const formattedPartidas = Object.keys(document.data).map((key) => {
         const partida = document.data[key];
         return {
@@ -22,18 +25,26 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
             price: entry.price
           })) : []
         };
+
       });
+
       setPartidas(formattedPartidas);
 
-      if (document.data.notes) {
-        // setNotes(Array.isArray(document.data.notes) ? document.data.notes.map(note => ({ text: note })) : []);
+      if (Array.isArray(document.data.notes)) {
         setNotes(document.data.notes);
       } else {
         setNotes([]);
       }
+
       const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
       setDate(formattedDate);
       setRendered(true);
+      
+      const floatAmount = parseFloat(document.price);
+      const floatVat = parseFloat(document.vat);
+      const vat_total = (floatAmount * floatVat) / 100;
+      setVatTotal(vat_total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      setTotalWithVat((floatAmount + vat_total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     }
 
   });
@@ -41,14 +52,6 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   const formatNumber = (value) => {
     const floatValue = parseFloat(value);
     return floatValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  const calculateTotal = (amout, vat) => {
-    const floatAmount = parseFloat(amout);
-    const floatVat = parseFloat(vat);
-    const result = floatAmount + ((floatAmount * floatVat) / 100);
-    return result.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
   }
 
   const styles = StyleSheet.create({
@@ -158,15 +161,13 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
               <Text>{entry.text}</Text>
             </View>
             <View style={styles.tbody}>
-              <Text>{formatNumber(entry.price)}€</Text>
+              <Text>{entry.price ? `${formatNumber(entry.price)}€`:''}</Text>
             </View>
           </View>
         ))}
       </Fragment>
     ))
   );
-
-  
 
   const TableTotal = () => (
     <View style={styles.tableTotal}>
@@ -177,30 +178,31 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
         <Text>{formatNumber(document.price)}€</Text>
       </View>
       <View style={styles.tbody3}>
-        <Text>IVA</Text>
+        <Text>IVA {document.vat ? `${document.vat}%` : ''}</Text>
       </View>
       <View style={styles.tbody3}>
-        <Text>{document.vat}%</Text>
+        <Text>{document.vat ? `${vatTotal}€`:''}</Text>
       </View>
       <View style={styles.tbody3}>
         <Text>Total</Text>
       </View>
       <View style={styles.tbody3}>
-        <Text>{calculateTotal(document.price, document.vat)}€</Text>
+        <Text>{totalWitVat}€</Text>
       </View>
     </View>
   );
 
   const Footer = () => (
     <View style={styles.footer}>
+      <Text style={{fontSize:'12', fontWeight:'bold'}}>{notes ? 'Notas':''}</Text>
       {notes && notes.map((note, index) => (
-        <Text key={index} style={styles.note}>{note.text}</Text>
+        <Text key={index} style={styles.note}>{note}</Text>
       ))}
       <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
       <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
   );
-
+  
   return (
     <Document>
       <Page size="A4" style={styles.page}>
