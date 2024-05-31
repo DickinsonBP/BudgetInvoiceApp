@@ -194,7 +194,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const Footer = () => (
     <View style={styles.footer}>
-      <Text style={{fontSize:'12', fontWeight:'bold'}}>{notes ? 'Notas':''}</Text>
+      <Text style={{fontSize:'12', fontWeight:'bold'}}>{notes && notes.length > 0 ? 'Notas' : ''}</Text>
       {notes && notes.map((note, index) => (
         <Text key={index} style={styles.note}>{note}</Text>
       ))}
