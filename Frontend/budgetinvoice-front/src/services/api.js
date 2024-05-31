@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://192.168.1.55:8000/api';
-//const API_URL = 'http://localhost:8000/api';
+//const API_URL = 'http://192.168.1.55:8000/api';
+const API_URL = 'http://localhost:8000/api';
 
 /**
  * Clients Backend connections
@@ -81,12 +81,32 @@ export const updateClient = async (id, client) => {
 export const getBudgets = async() => {
     try{
         const response = await axios.get(`${API_URL}/budgets`);
-        return response.data;
+        return response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
     }catch(error){
         console.error('Error fetching budget:',error);
         throw error;
     }
 } 
+
+export const getBudgetsLastId = async() => {
+    try {
+        const response = await axios.get(`${API_URL}/budgets`);
+        const budgets = response.data;
+
+        if (budgets.length === 0) {
+            throw new Error('No invoices found');
+        }
+
+        // Ordena las facturas por fecha descendente
+        const sortedBudgets = budgets.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Devuelve el ID de la última factura (la más reciente)
+        return sortedBudgets[0].id;
+    } catch (error) {
+        console.error('Error fetching invoices:', error);
+        throw error;
+    }
+};
 
 /**
  * Function to create (POST) a new budget
@@ -138,12 +158,32 @@ export const apiDeleteBudget = async (id, budget) => {
 export const getInvoices = async() => {
     try{
         const response = await axios.get(`${API_URL}/invoices`);
-        return response.data;
+        return response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
     }catch(error){
         console.error('Error fetching invoices:',error);
         throw error;
     }
-} 
+}
+
+export const getInvoicesLastId = async() => {
+    try {
+        const response = await axios.get(`${API_URL}/invoices`);
+        const invoices = response.data;
+
+        if (invoices.length === 0) {
+            throw new Error('No invoices found');
+        }
+
+        // Ordena las facturas por fecha descendente
+        const sortedInvoices = invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Devuelve el ID de la última factura (la más reciente)
+        return sortedInvoices[0].id;
+    } catch (error) {
+        console.error('Error fetching invoices:', error);
+        throw error;
+    }
+};
 
 export const createInvoice = async (invoice) => {
     try {
@@ -201,4 +241,17 @@ export const exportBudgetToPDF = async (id) => {
         console.error('Error exporting budget to pdf:', error);
         throw error;
     }
+}
+
+
+/**
+ * OTHER FUNCTIONS
+ */
+
+export const calculateId = (docId) => {
+    const newId = String(docId).padStart(3,'0');
+    const date = String(new Date().getFullYear());
+    const onlyYear = date.substring(date.length - 2);
+
+    return `${onlyYear}${newId}`;
 }

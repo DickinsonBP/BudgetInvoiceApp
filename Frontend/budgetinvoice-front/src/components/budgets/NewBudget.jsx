@@ -2,7 +2,7 @@
  * React imports
  */
 import React, { useState, useEffect } from 'react';
-import { createBudget, getClients } from '../../services/api';
+import { createBudget, getClients, getBudgetsLastId, calculateId } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 /**
  * Styles
@@ -37,6 +37,7 @@ export default function NewBudget(){
     const [selectedVAT, setSelectedVAT] = useState(null);
     const [showNotes, setShowNotes] = useState(false);
     const [notes, setNotes] = useState([{text:''}]);
+    const [docNumber, setDocNumber] = useState('');
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -51,8 +52,18 @@ export default function NewBudget(){
                 console.error('Error fetching clients:', error);
             }
         };
+        const fetchDocNumber = async () => {
+            try{
+                const lastId = await getBudgetsLastId();
+                setDocNumber(calculateId(lastId + 1));
+            }catch(error){
+                console.error('Error setting up new budget number:',error);
+            }
+
+        }
         
         fetchClients();
+        fetchDocNumber();
     }, []);
 
     useEffect(() => {
@@ -60,7 +71,7 @@ export default function NewBudget(){
             const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
             return acc + partidaTotal;
         }, 0);
-        setPrice(total.setFixed(2));
+        setPrice(total.toFixed(2));
     }, [partidas]);
 
     const handleAddPartida = () => {
@@ -121,6 +132,7 @@ export default function NewBudget(){
             vat: selectedVAT ? selectedVAT.value : 0,
             approved: approved ? approved : false,
             date: formattedDate,
+            doc_number: docNumber,
             data: {
                     ...partidas.reduce((acc, partida, index) => {
                                 acc[`partida${index + 1}`] = {
@@ -172,6 +184,15 @@ export default function NewBudget(){
                                     value={title} 
                                     onChange={(e) => setTitle(e.target.value)} 
                                     placeholder="Título" 
+                                    className="w-full" 
+                                />
+                            </div>
+                            <div className='field col'>
+                                <InputText 
+                                    id="doc_number" 
+                                    value={docNumber} 
+                                    onChange={(e) => setDocNumber(e.target.value)} 
+                                    placeholder="Número de presupuesto" 
                                     className="w-full" 
                                 />
                             </div>

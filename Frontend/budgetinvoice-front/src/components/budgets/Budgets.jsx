@@ -256,6 +256,9 @@ export default function Budgets() {
         const matchingClient = clients.find((client) => client.id === rowData.client);
         return matchingClient ? matchingClient.name : '';
     };
+    const docNumberBodyTemplate = (rowData) => {
+        return  rowData.doc_number ? rowData.doc_number : '';
+    };
 
     const dateBodyTemplate = (rowData) => {
         const formattedDate = rowData.date ? format(rowData.date, 'dd/MM/yyyy', { locale: es }) : '';
@@ -288,6 +291,7 @@ export default function Budgets() {
                         dataKey="id"  paginator rows={5} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} presupuestos" globalFilter={globalFilter} header={header}>
+                    <Column field="doc_number" header="Numero de presupuesto" body={docNumberBodyTemplate}  sortable style={{ minWidth:'6rem' }}></Column>
                     <Column field="title" header="Título" sortable style={{ minWidth: '12rem' }}></Column>
                     <Column field="price" header="Precio" body={priceBodyTemplate}  sortable style={{ minWidth: '16rem' }}></Column>
                     <Column field="invoice_vat" header="IVA" body={budgetVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>

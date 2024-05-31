@@ -18,6 +18,7 @@ class Budget(models.Model):
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
     approved = models.BooleanField(default=False, null=True, blank=True)
     vat = models.IntegerField(default=21)
+    doc_number = models.CharField(max_length=20, null=True, blank=True)
 
 class Invoice(models.Model):
     title = models.CharField(max_length=255, db_index=True)
@@ -28,3 +29,4 @@ class Invoice(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.PROTECT, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True, default=0.00)
     vat = models.IntegerField(default=21)
+    doc_number = models.CharField(max_length=20, null=True, blank=True)

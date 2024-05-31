@@ -201,7 +201,7 @@ export default function Invoices() {
 
         const showPdf = async () => {
             const client = await getClientByID(rowData.client);
-            const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice' client={client} />).toBlob();
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice' client={client} doc_number={rowData.doc_number}/>).toBlob();
             const pdfUrl = URL.createObjectURL(blob);
             setPdfUrl(pdfUrl);
             console.log("PDFURL: ",pdfUrl);
@@ -278,6 +278,9 @@ export default function Invoices() {
         const matchingClient = clients.find((client) => client.id === rowData.client);
         return matchingClient ? matchingClient.name : '';
     };
+    const docNumberBodyTemplate = (rowData) => {
+        return  rowData.doc_number ? rowData.doc_number : '';
+    };
     const budgetBodyTemplate = (rowData) => {
         const matchingBudget = budgets.find((budget) => budget.id === rowData.budget);
         return matchingBudget ? matchingBudget.title : '';
@@ -308,10 +311,10 @@ export default function Invoices() {
                         dataKey="id"  paginator rows={5} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} facturas" globalFilter={globalFilter} header={header}>
+                    <Column field="doc_number" header="Numero de factura" body={docNumberBodyTemplate}  sortable style={{ minWidth:'6rem' }}></Column>
                     <Column field="title" header="Título" sortable style={{ minWidth:'6rem' }}></Column>
                     <Column field="client" header="Cliente" body={clientBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="budget" header="Presupuesto" body={budgetBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
-                    {/* <Column field="budget_price" header="Precio del presupuesto" body={budgetPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column> */}
                     <Column field="invoice_price" header="Precio de la factura" body={invoicePriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="invoice_vat" header="IVA" body={invoiceVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="price" header="Precio con IVA" body={invoiceVatPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>

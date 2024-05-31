@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo.png';
 import { format } from 'date-fns';
 import es from 'date-fns/locale/es';
 
-const GeneratePDF = React.memo(({ document, doc_type, client }) => {
+const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
   const [notes, setNotes] = useState([]);
@@ -108,20 +108,12 @@ const GeneratePDF = React.memo(({ document, doc_type, client }) => {
     </View>
   );
 
-  const calculateId = (docId) => {
-    const newId = String(docId).padStart(3,'0');
-    const date = String(new Date().getFullYear());
-    const onlyYear = date.substring(date.length - 2);
-
-    return `${onlyYear}${newId}`;
-  }
-
   const Address = () => (
     //TODO: Generar id a partir de la fecha.
     <View style={styles.titleContainer}>
       <View style={styles.spaceBetween}>
         <View>
-          <Text style={styles.document}>{doc_type === "invoice" ? "Factura" : "Presupuesto"} {calculateId(document.id)}</Text>
+          <Text style={styles.document}>{doc_type === "invoice" ? "Factura" : "Presupuesto"} {doc_number}</Text>
         </View>
       </View>
     </View>

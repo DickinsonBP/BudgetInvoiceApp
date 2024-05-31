@@ -50,6 +50,7 @@ export default function EditInvoice(){
     const [selectedDate, setSelectedDate] = useState(null);
     const [showNotes, setShowNotes] = useState(false);
     const [notes, setNotes] = useState([{text:''}]);
+    const [selectedDocNumber, setSelectedDocNumber] = useState('');
 
     useEffect(() => {
         if (location.state && location.state.invoice) {
@@ -60,6 +61,7 @@ export default function EditInvoice(){
             setSelectedBudget(invoice.budget);
             setSelectedVAT(invoice.vat);
             setSelectedStatus(invoice.staus);
+            setSelectedDocNumber(invoice.doc_number);
             const parsedDate = invoice.date ? parse(invoice.date, 'yyyy-MM-dd', new Date()) : null;
             setSelectedDate(parsedDate);
 
@@ -181,6 +183,7 @@ export default function EditInvoice(){
             budget: selectedBudget,
             vat: selectedVAT,
             date: formattedDate,
+            doc_number: selectedDocNumber,
             data: {
                 ...partidas.reduce((acc, partida, index) => {
                     acc[`partida${index + 1}`] = {
@@ -226,6 +229,15 @@ export default function EditInvoice(){
                                     value={invoice.title} 
                                     onChange={(e) => setTitle(e.target.value)} 
                                     placeholder="Título" 
+                                    className="w-full" 
+                                />
+                            </div>
+                            <div className='field col'>
+                                <InputText 
+                                    id="doc_number" 
+                                    value={selectedDocNumber} 
+                                    onChange={(e) => setSelectedDocNumber(e.target.value)} 
+                                    placeholder="Número de factura" 
                                     className="w-full" 
                                 />
                             </div>

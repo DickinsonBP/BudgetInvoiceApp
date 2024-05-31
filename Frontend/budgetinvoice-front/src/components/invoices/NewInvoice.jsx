@@ -2,7 +2,7 @@
  * React imports
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { createInvoice, getClients, getBudgets } from '../../services/api';
+import { createInvoice, getClients, getBudgets, getInvoicesLastId, calculateId } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 /**
  * Styles
@@ -41,6 +41,7 @@ export default function NewInvoice(){
     const [selectedVAT, setSelectedVAT] = useState(null);
     const [showNotes, setShowNotes] = useState(false);
     const [notes, setNotes] = useState([{text:''}]);
+    const [docNumber, setDocNumber] = useState('');
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -67,9 +68,19 @@ export default function NewInvoice(){
                 console.error('Error fetching budgets:', error);
             }
         };
+        const fetchDocNumber = async () => {
+            try{
+                const lastId = await getInvoicesLastId();
+                setDocNumber(calculateId(lastId + 1));
+            }catch(error){
+                console.error('Error setting up new invoice number:',error);
+            }
+
+        }
         
         fetchClients();
         fetchBudgets();
+        fetchDocNumber();
     }, []);
 
     useEffect(() => {
@@ -141,6 +152,7 @@ export default function NewInvoice(){
             vat: selectedVAT,
             date: formattedDate,
             status: status ? status : false,
+            doc_number: docNumber,
             data: {
                 ...partidas.reduce((acc, partida, index) => {
                     acc[`partida${index + 1}`] = {
@@ -192,6 +204,15 @@ export default function NewInvoice(){
                                     value={title} 
                                     onChange={(e) => setTitle(e.target.value)} 
                                     placeholder="Título" 
+                                    className="w-full" 
+                                />
+                            </div>
+                            <div className='field col'>
+                                <InputText 
+                                    id="doc_number" 
+                                    value={docNumber} 
+                                    onChange={(e) => setDocNumber(e.target.value)} 
+                                    placeholder="Número de factura" 
                                     className="w-full" 
                                 />
                             </div>

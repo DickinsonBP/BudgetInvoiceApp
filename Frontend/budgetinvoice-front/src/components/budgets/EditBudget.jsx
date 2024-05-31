@@ -48,6 +48,7 @@ export default function EditBudget(){
     const [selectedDate, setSelectedDate] = useState(null);
     const [showNotes, setShowNotes] = useState(true);
     const [notes, setNotes] = useState([{text:''}]);
+    const [selectedDocNumber, setSelectedDocNumber] = useState('');
 
     useEffect(() => {
         if (location.state && location.state.budget) {
@@ -56,6 +57,7 @@ export default function EditBudget(){
             setSelectedClient(budget.client);
             setSelectedVAT(budget.vat);
             setSelectedApproved(budget.approved);
+            setSelectedDocNumber(budget.doc_number);
             const parsedDate = budget.date ? parse(budget.date, 'yyyy-MM-dd', new Date()) : null;
             setSelectedDate(parsedDate);
 
@@ -101,7 +103,7 @@ export default function EditBudget(){
             const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
             return acc + partidaTotal;
         }, 0);
-        setPrice(total.setFixed(2));
+        setPrice(total.toFixed(2));
     }, [partidas]);
 
     const handleAddPartida = () => {
@@ -163,6 +165,7 @@ export default function EditBudget(){
             client: selectedClient,
             vat: selectedVAT.value,
             date: formattedDate,
+            doc_number: selectedDocNumber,
             data: {
                     ...partidas.reduce((acc, partida, index) => {
                     acc[`partida${index + 1}`] = {
@@ -211,6 +214,15 @@ export default function EditBudget(){
                                     value={budget.title} 
                                     onChange={(e) => setTitle(e.target.value)} 
                                     placeholder="Título" 
+                                    className="w-full" 
+                                />
+                            </div>
+                            <div className='field col'>
+                                <InputText 
+                                    id="doc_number" 
+                                    value={selectedDocNumber} 
+                                    onChange={(e) => setSelectedDocNumber(e.target.value)} 
+                                    placeholder="Número de presupuesto" 
                                     className="w-full" 
                                 />
                             </div>
