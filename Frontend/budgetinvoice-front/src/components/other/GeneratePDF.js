@@ -15,7 +15,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   useEffect(() => {
     if (!rendered && document && document.data) {
-
+	
       const formattedPartidas = Object.keys(document.data).map((key) => {
         const partida = document.data[key];
         return {
@@ -31,7 +31,8 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
       setPartidas(formattedPartidas);
 
       if (Array.isArray(document.data.notes)) {
-        setNotes(document.data.notes);
+        const filteredNotes = document.data.notes.filter(note => note.trim() !== '');
+	      setNotes(filteredNotes);
       } else {
         setNotes([]);
       }
@@ -194,7 +195,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const Footer = () => (
     <View style={styles.footer}>
-      <Text style={{fontSize:'12', fontWeight:'bold'}}>{notes && notes.length > 0 ? 'Notas' : ''}</Text>
+      <Text style={{fontSize:'12', fontWeight:'bold'}}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
       {notes && notes.map((note, index) => (
         <Text key={index} style={styles.note}>{note}</Text>
       ))}
