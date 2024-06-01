@@ -101,7 +101,7 @@ export const getBudgetsLastId = async() => {
         const sortedBudgets = budgets.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         // Devuelve el ID de la última factura (la más reciente)
-        return sortedBudgets[0].id;
+        return sortedBudgets[0].doc_number;
     } catch (error) {
         console.error('Error fetching invoices:', error);
         throw error;
