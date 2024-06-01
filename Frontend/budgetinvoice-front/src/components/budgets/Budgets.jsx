@@ -58,7 +58,7 @@ export default function Budgets() {
                 const data = await getBudgets();
                 const budgets = data.filter(item => item.id !== 0);
                 setData(budgets);
-                // console.table(data);
+                console.table(budgets);
             } catch (error) {
                 console.error('Error fetching budgets:', error);
             }

@@ -279,7 +279,7 @@ export default function Invoices() {
     };
 
     const dateBodyTemplate = (rowData) => {
-        const formattedDate = rowData.date ? format(rowData.date, 'dd/MM/yyyy', { locale: es }) : '';
+        const formattedDate = rowData.date ? format(new Date(rowData.date), 'dd/MM/yyyy', { locale: es }) : '';
         return formattedDate;
     }
 

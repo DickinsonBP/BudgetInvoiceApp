@@ -55,6 +55,7 @@ export default function NewBudget(){
         const fetchDocNumber = async () => {
             try{
                 const lastId = await getBudgetsLastId();
+		    console.log("NUMBER:",lastId);
                 setDocNumber(parseInt(lastId) + 1);
             }catch(error){
                 console.error('Error setting up new budget number:',error);
