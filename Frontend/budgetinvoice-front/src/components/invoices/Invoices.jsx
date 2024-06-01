@@ -13,6 +13,8 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
+import { Calendar } from 'primereact/calendar';
+import { FilterMatchMode, FilterOperator } from 'primereact/api';
 
 import GeneratePDF from '../other/GeneratePDF';
 import { pdf } from '@react-pdf/renderer';
@@ -32,7 +34,8 @@ export default function Invoices() {
         budget: '',
     };
     const navigate = useNavigate();
-    const [data, setData] = useState(null);
+    const [filters, setFilters] = useState(null);
+	const [data, setData] = useState(null);
     const [clients, setClients] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [invoiceDialog, setInvoiceDialog] = useState(false);
@@ -77,6 +80,7 @@ export default function Invoices() {
         fetchData();
         fetchClients();
         fetchBudgets();
+	    initFilters();
     }, []);
 
     const formatCurrency = (value) => {
@@ -228,10 +232,15 @@ export default function Invoices() {
         );
     };
 
+const clearFilter = () => {
+		initFilters();
+	};
+
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Gestionar Facturas</h4>
-            <IconField iconPosition="left">
+            <Button type="button" icon="pi pi-filter-slash" label="Borrar filtros" outlined onClick={clearFilter}/>
+	    <IconField iconPosition="left">
                 <InputIcon className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
             </IconField>
@@ -285,6 +294,7 @@ export default function Invoices() {
         const matchingBudget = budgets.find((budget) => budget.id === rowData.budget);
         return matchingBudget ? matchingBudget.title : '';
     };
+	
     const getSeverity = (data) => {
         switch (data.status) {
             case true:
@@ -299,7 +309,18 @@ export default function Invoices() {
     };
     const statusBodyTemplate = (data) => {
         return <Tag value={data.status === true ? "Pagada":"Por pagar"} severity={getSeverity(data)}></Tag>;
-    };
+    };	
+
+	const initFilters = () => {
+		setFilters({
+			date : {operator: FilterOperator.AND, constraints : [{value:null, matchMode: FilterMatchMode.DATE_IS}]}
+		});
+	};
+
+const dateFilterTemplate = (options) => {
+	console.log(options);
+	return <Calendar locale="es" value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="dd/mm/yyyy" mask="99/99/9999"/>
+};
 
     return (
         <div>
@@ -318,7 +339,7 @@ export default function Invoices() {
                     <Column field="invoice_price" header="Precio de la factura" body={invoicePriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="invoice_vat" header="IVA" body={invoiceVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="price" header="Precio con IVA" body={invoiceVatPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="date" header="Fecha" body={dateBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="date" header="Fecha" body={dateBodyTemplate}  sortable style={{ minWidth: '6rem' }} dataType="date" filterField="date" filter filterElement={dateFilterTemplate}></Column>
                     <Column field="status" header="Estado" body={statusBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
                     <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ minWidth: '2rem'}}></Column>
                 </DataTable>
