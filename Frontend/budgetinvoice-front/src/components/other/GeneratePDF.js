@@ -96,11 +96,12 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     tbody3: { fontSize: 9, paddingTop: 4, paddingLeft: 3, flex: 1, borderColor: 'whitesmoke', borderRightWidth: 1, borderBottomWidth: 1 },
 
     //footer: { position:'absolute', marginTop: 20, fontSize: 10, fontWeight: 'bold' },
-	footer: { position: 'absolute', bottom:0, left:40, right:40, textAlign: 'left', fontWeight:'bold',padding:10, fontSize:10, backgroundColor:'#DEDEDE', borderColor:'whitesmoke', flexDirection:'column', borderWith:1, with:'auto', marginVertical:10},
+	footer: { position: 'absolute', bottom:0, left:40, right:40, textAlign: 'left', fontWeight:'bold',padding:10, fontSize:10, backgroundColor:'#DEDEDE', borderColor:'whitesmoke', flexDirection:'column', borderWith:1, width:'auto', marginVertical:10},
 
-	  noteContainer: {backgroundColor: '#DEDEDE', borderWith:1, padding: 10, marginVertical:10, with:'auto'},
+	  noteContainer: {backgroundColor: '#DEDEDE', borderWith:1, padding: 10, marginVertical:10, width:'auto'},
 	  noteTitle: {fontSize:12, fontWeight: 'bold', marginBottom:5},
-    note: { marginTop: 2 }
+    note: { marginTop: 2 },
+	  separator: {borderColor:'whitesmoke', borderBottomWith:1, marginVertical:10, width:'100%'},
 
   });
 
@@ -203,6 +204,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
       {notes && notes.map((note, index) => (
         <Text key={index} style={styles.note}>{note}</Text>
       ))}
+	  {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
       <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
       <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
