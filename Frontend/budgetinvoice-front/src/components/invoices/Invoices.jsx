@@ -30,12 +30,12 @@ export default function Invoices() {
         title: '',
         data: '',
         status: '',
-        client:'',
+        client: '',
         budget: '',
     };
     const navigate = useNavigate();
     const [filters, setFilters] = useState(null);
-	const [data, setData] = useState(null);
+    const [data, setData] = useState(null);
     const [clients, setClients] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [invoiceDialog, setInvoiceDialog] = useState(false);
@@ -76,11 +76,11 @@ export default function Invoices() {
                 console.error('Error fetching invoices:', error);
             }
         };
-        
+
         fetchData();
         fetchClients();
         fetchBudgets();
-	    initFilters();
+        initFilters();
     }, []);
 
     const formatCurrency = (value) => {
@@ -122,23 +122,23 @@ export default function Invoices() {
             let _invoice = { ...invoice };
 
             if (invoice.id) {
-                try{
+                try {
                     const response = await updateInvoice(invoice.id, invoice);
-    
+
                     _invoices[invoice.id] = _invoice;
                     toast.current.show({ severity: 'success', summary: 'Felicidades!', detail: 'Factura Actualizada', life: 3000 });
-                }catch(error){
+                } catch (error) {
                     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al actualizarla factura', life: 3000 });
-                    console.error('Error while updating invoice:',error);
+                    console.error('Error while updating invoice:', error);
                 }
             } else {
-                try{
+                try {
                     const response = await createInvoice(invoice);
                     _invoices.push(_invoice);
                     toast.current.show({ severity: 'success', summary: 'Felicidades!', detail: 'Presupuesto Creado', life: 3000 });
-                }catch(error){
+                } catch (error) {
                     toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al crear una nueva factura', life: 3000 });
-                    console.error('Error while creating a new invoice:',error);
+                    console.error('Error while creating a new invoice:', error);
                 }
             }
 
@@ -152,7 +152,7 @@ export default function Invoices() {
         // setInvoice({ ...invoice });
         // setSelectedClient(invoice.client);
         // setInvoiceDialog(true);
-        navigate('/invoices/edit-invoice', {state:{invoice}});
+        navigate('/invoices/edit-invoice', { state: { invoice } });
     };
 
     const confirmDeleteInvoice = (invoice) => {
@@ -161,17 +161,17 @@ export default function Invoices() {
     };
 
     const deleteInvoice = async () => {
-        try{
+        try {
             await apiDeleteInvoice(invoice.id, invoice);
             let _invoices = data.filter((val) => val.id !== invoice.id);
-    
+
             setData(_invoices);
             setDeleteInvoiceDialog(false);
             setInvoice(emptyInvoice);
             toast.current.show({ severity: 'success', summary: 'Felicidades!', detail: 'Factura eliminada', life: 3000 });
-        } catch (error){
+        } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al borrar la factura', life: 3000 });
-            console.error('Error deleting user:',error);
+            console.error('Error deleting user:', error);
         }
     };
 
@@ -200,18 +200,18 @@ export default function Invoices() {
         return <Button label="Exportar" icon="pi pi-upload" raised className="p-button-help" onClick={exportCSV} />;
     };
 
-    
+
     const actionBodyTemplate = (rowData) => {
 
         const showPdf = async () => {
             const client = await getClientByID(rowData.client);
-            const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice' client={client} doc_number={rowData.doc_number}/>).toBlob();
+            const blob = await pdf(<GeneratePDF document={rowData} doc_type='invoice' client={client} doc_number={rowData.doc_number} />).toBlob();
             const pdfUrl = URL.createObjectURL(blob);
             setPdfUrl(pdfUrl);
-            console.log("PDFURL: ",pdfUrl);
+            console.log("PDFURL: ", pdfUrl);
             setPdfVisible(true);
         };
-    
+
         const hidePdf = () => {
             setPdfVisible(false);
             URL.revokeObjectURL(pdfUrl);
@@ -232,15 +232,15 @@ export default function Invoices() {
         );
     };
 
-const clearFilter = () => {
-		initFilters();
-	};
+    const clearFilter = () => {
+        initFilters();
+    };
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Gestionar Facturas</h4>
-            <Button type="button" icon="pi pi-filter-slash" label="Borrar filtros" outlined onClick={clearFilter}/>
-	    <IconField iconPosition="left">
+            <Button type="button" icon="pi pi-filter-slash" label="Borrar filtros" outlined onClick={clearFilter} />
+            <IconField iconPosition="left">
                 <InputIcon className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
             </IconField>
@@ -259,22 +259,22 @@ const clearFilter = () => {
         </React.Fragment>
     );
 
-    
+
     const invoicePriceBodyTemplate = (rowData) => {
         return formatCurrency(rowData.price);
     };
-    
+
     const invoiceVatBodyTemplate = (rowData) => {
         return rowData.vat;
     };
-    
+
     const budgetPriceBodyTemplate = (rowData) => {
         const matchingBudget = budgets.find((budget) => budget.id === rowData.budget);
         return formatCurrency(matchingBudget ? matchingBudget.price : '');
     };
-    
+
     const invoiceVatPriceBodyTemplate = (rowData) => {
-        let vat_price = (rowData.price * rowData.vat)/100;
+        let vat_price = (rowData.price * rowData.vat) / 100;
         return formatCurrency(parseFloat(rowData.price) + vat_price);
     };
 
@@ -288,13 +288,13 @@ const clearFilter = () => {
         return matchingClient ? matchingClient.name : '';
     };
     const docNumberBodyTemplate = (rowData) => {
-        return  rowData.doc_number ? rowData.doc_number : '';
+        return rowData.doc_number ? rowData.doc_number : '';
     };
     const budgetBodyTemplate = (rowData) => {
         const matchingBudget = budgets.find((budget) => budget.id === rowData.budget);
         return matchingBudget ? matchingBudget.title : '';
     };
-	
+
     const getSeverity = (data) => {
         switch (data.status) {
             case true:
@@ -308,19 +308,18 @@ const clearFilter = () => {
         }
     };
     const statusBodyTemplate = (data) => {
-        return <Tag value={data.status === true ? "Pagada":"Por pagar"} severity={getSeverity(data)}></Tag>;
-    };	
+        return <Tag value={data.status === true ? "Pagada" : "Por pagar"} severity={getSeverity(data)}></Tag>;
+    };
 
-	const initFilters = () => {
-		setFilters({
-			date : {operator: FilterOperator.AND, constraints : [{value:null, matchMode: FilterMatchMode.DATE_IS}]}
-		});
-	};
+    const initFilters = () => {
+        setFilters({
+            date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
+        });
+    };
 
-const dateFilterTemplate = (options) => {
-	console.log(options);
-	return <Calendar locale="es" value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="dd/mm/yyyy" mask="99/99/9999"/>
-};
+    const dateFilterTemplate = (options) => {
+        return <Calendar locale="es" value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="dd/mm/yyyy" mask="99/99/9999" />
+    };
 
     return (
         <div>
@@ -329,19 +328,19 @@ const dateFilterTemplate = (options) => {
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
                 <DataTable ref={dt} value={data} removableSort size='small'
-                        dataKey="id"  paginator rows={5} rowsPerPageOptions={[5, 10, 25]}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} facturas" globalFilter={globalFilter} header={header}>
-                    <Column field="doc_number" header="Numero de factura" body={docNumberBodyTemplate}  sortable style={{ minWidth:'6rem' }}></Column>
-                    <Column field="title" header="Título" sortable style={{ minWidth:'6rem' }}></Column>
+                    dataKey="id" paginator rows={5} rowsPerPageOptions={[5, 10, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} facturas" globalFilter={globalFilter} header={header}>
+                    <Column field="doc_number" header="Numero de factura" body={docNumberBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="title" header="Título" sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="client" header="Cliente" body={clientBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
                     <Column field="budget" header="Presupuesto" body={budgetBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="invoice_price" header="Precio de la factura" body={invoicePriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="invoice_vat" header="IVA" body={invoiceVatBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="price" header="Precio con IVA" body={invoiceVatPriceBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="date" header="Fecha" body={dateBodyTemplate}  sortable style={{ minWidth: '6rem' }} dataType="date" filterField="date" filter filterElement={dateFilterTemplate}></Column>
-                    <Column field="status" header="Estado" body={statusBodyTemplate}  sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ minWidth: '2rem'}}></Column>
+                    <Column field="invoice_price" header="Precio de la factura" body={invoicePriceBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="invoice_vat" header="IVA" body={invoiceVatBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="price" header="Precio con IVA" body={invoiceVatPriceBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="date" header="Fecha" body={dateBodyTemplate} sortable style={{ minWidth: '6rem' }} dataType="date" filterField="date" filter filterElement={dateFilterTemplate}></Column>
+                    <Column field="status" header="Estado" body={statusBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column header="Acciones" body={actionBodyTemplate} exportable={false} style={{ minWidth: '2rem' }}></Column>
                 </DataTable>
             </div>
 
@@ -356,13 +355,13 @@ const dateFilterTemplate = (options) => {
                     <label htmlFor="client" className="font-bold">
                         Cliente
                     </label>
-                    <Dropdown 
-                        value={selectedClient} 
-                        onChange={(e) => setSelectedClient(e.value)} 
-                        options={clients} 
-                        optionLabel="name" 
-                        placeholder="Select a Client" 
-                        className="w-full md:w-14rem" 
+                    <Dropdown
+                        value={selectedClient}
+                        onChange={(e) => setSelectedClient(e.value)}
+                        options={clients}
+                        optionLabel="name"
+                        placeholder="Select a Client"
+                        className="w-full md:w-14rem"
                     />
                 </div>
                 <div className="field">
@@ -386,4 +385,4 @@ const dateFilterTemplate = (options) => {
         </div>
     );
 }
-        
+
