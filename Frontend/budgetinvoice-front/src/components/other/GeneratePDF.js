@@ -90,13 +90,17 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     
     tbody2: { flex: 2, borderRightWidth: 1, },
 
-    tableTotal : { width: '80%', flexDirection: 'row', justifyContent:'flex-end', textAlign:'right'},
+    //tableTotal : { width: '80%', flexDirection: 'row', justifyContent:'flex-end', textAlign:'right'},
+	tableTotal : {width:'100%', flexDirection: 'row', justifyContent:'flex-end', textAlign:'center', backgroundColor: '#DEDEDE', fontWeight: 'bold', borderColor:'black', borderWith:1},
 
     tbody3: { fontSize: 9, paddingTop: 4, paddingLeft: 3, flex: 1, borderColor: 'whitesmoke', borderRightWidth: 1, borderBottomWidth: 1 },
 
-    footer: { marginTop: 20, fontSize: 10, fontWeight: 'bold' },
+    //footer: { position:'absolute', marginTop: 20, fontSize: 10, fontWeight: 'bold' },
+	footer: { position: 'absolute', bottom:0, left:40, right:40, textAlign: 'left', fontWeight:'bold',padding:10, fontSize:10, backgroundColor:'#DEDEDE', borderColor:'whitesmoke', flexDirection:'column', borderWith:1, with:'auto', marginVertical:10},
 
-    note: { marginTop: 5 }
+	  noteContainer: {backgroundColor: '#DEDEDE', borderWith:1, padding: 10, marginVertical:10, with:'auto'},
+	  noteTitle: {fontSize:12, fontWeight: 'bold', marginBottom:5},
+    note: { marginTop: 2 }
 
   });
 
@@ -193,9 +197,9 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     </View>
   );
 
-  const Footer = () => (
+  const Footer = ({notes, doc_type}) => (
     <View style={styles.footer}>
-      <Text style={{fontSize:'12', fontWeight:'bold'}}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
+	<Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
       {notes && notes.map((note, index) => (
         <Text key={index} style={styles.note}>{note}</Text>
       ))}
@@ -203,18 +207,25 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
       <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
   );
+
+	
+	const PageTemplate = ({children}) => (
+		<Page size="A4" style={styles.page}>
+			{children}
+			<Footer notes={notes} doc_type={doc_type} />
+		</Page>
+	);
   
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <PageTemplate>
         <InvoiceTitle />
         <Address />
         <UserAddress />
         <TableHead />
         <TableBody />
         <TableTotal />
-        <Footer />
-      </Page>
+      </PageTemplate>
     </Document>
   );
 }
