@@ -227,23 +227,23 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
       const currentPartidas = partidas.slice(i, i + itemsPerPage);
       pages.push(
         <PageTemplate key={i}>
+          <TableBody partidas={currentPartidas}/>
+        </PageTemplate>
+      );
+      }
+      }
+      
+      return (
+        <Document>
           <InvoiceTitle />
           <Address />
           <UserAddress />
           <TableHead />
-          <TableBody partidas={currentPartidas}/>
-        </PageTemplate>
-      );
-    }
-  }
-  
-  return (
-    <Document>
-      {renderPartidasInPages()} 
-      <PageTemplate>
-        <TableTotal />
-      </PageTemplate>
-    </Document>
+          {renderPartidasInPages()} 
+          <PageTemplate>
+            <TableTotal />
+          </PageTemplate>
+        </Document>
   );
 }
 
