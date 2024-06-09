@@ -155,7 +155,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   );
 
 
-  const TableBody = ({curr_partidas}) => (
+  const TableBody = ({ curr_partidas }) => (
     curr_partidas.map((partida, index) => (
       <Fragment key={index}>
         {partida.title && (
@@ -167,7 +167,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
               <Text>{entry.text}</Text>
             </View>
             <View style={styles.tbody}>
-              <Text>{entry.price ? `${formatNumber(entry.price)}€`:''}</Text>
+              <Text>{entry.price ? `${formatNumber(entry.price)}€` : ''}</Text>
             </View>
           </View>
         ))}
@@ -200,13 +200,13 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const Footer = ({notes, doc_type}) => (
     <View style={styles.footer}>
-	<Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
-      {notes && notes.map((note, index) => (
-        <Text key={index} style={styles.note}>{note}</Text>
-      ))}
-	  {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
-      <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
-      <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
+	    <Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
+        {notes && notes.map((note, index) => (
+          <Text key={index} style={styles.note}>{note}</Text>
+        ))}
+      {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
+        <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
+        <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
   );
 
