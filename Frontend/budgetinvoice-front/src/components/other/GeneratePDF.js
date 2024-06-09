@@ -14,40 +14,57 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   const [vatTotal, setVatTotal] = useState(0);
 
   useEffect(() => {
-    if (!rendered && document && document.data) {
-	
-      const formattedPartidas = Object.keys(document.data).map((key) => {
-        const partida = document.data[key];
-        return {
-          title: partida.title,
-          entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
-            text: entry.text,
-            price: entry.price
-          })) : []
-        };
-
-      });
-
-      setPartidas(formattedPartidas);
-
-      if (Array.isArray(document.data.notes)) {
-        const filteredNotes = document.data.notes.filter(note => note.trim() !== '');
-	      setNotes(filteredNotes);
+    console.log("Inside useEffect"); // Verifica que el useEffect se ejecuta
+  
+    if (!rendered) {
+      console.log("Rendered is false"); // Verifica que rendered es falso
+  
+      if (document) {
+        console.log("Document is defined:", document); // Verifica que document está definido
+        
+        if (document.data) {
+          console.log("Document Data:", document.data); // Verifica que document.data está definido
+  
+          const formattedPartidas = Object.keys(document.data).map((key) => {
+            const partida = document.data[key];
+            return {
+              title: partida.title,
+              entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
+                text: entry.text,
+                price: entry.price
+              })) : []
+            };
+          });
+  
+          console.log("Formatted Partidas:", formattedPartidas); // Verifica que formattedPartidas se ha formateado correctamente
+  
+          setPartidas(formattedPartidas);
+  
+          if (Array.isArray(document.data.notes)) {
+            const filteredNotes = document.data.notes.filter(note => note.trim() !== '');
+            setNotes(filteredNotes);
+          } else {
+            setNotes([]);
+          }
+  
+          const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
+          setDate(formattedDate);
+          setRendered(true);
+  
+          const floatAmount = parseFloat(document.price);
+          const floatVat = parseFloat(document.vat);
+          const vat_total = (floatAmount * floatVat) / 100;
+          setVatTotal(vat_total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+          setTotalWithVat((floatAmount + vat_total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        } else {
+          console.log("Document Data is undefined or null");
+        }
       } else {
-        setNotes([]);
+        console.log("Document is undefined or null");
       }
-
-      const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
-      setDate(formattedDate);
-      setRendered(true);
-      
-      const floatAmount = parseFloat(document.price);
-      const floatVat = parseFloat(document.vat);
-      const vat_total = (floatAmount * floatVat) / 100;
-      setVatTotal(vat_total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-      setTotalWithVat((floatAmount + vat_total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    } else {
+      console.log("Rendered is true");
     }
-
   }, [document, rendered]);
 
   const formatNumber = (value) => {
