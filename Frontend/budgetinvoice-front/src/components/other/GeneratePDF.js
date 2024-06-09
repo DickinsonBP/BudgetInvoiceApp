@@ -218,7 +218,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 		</Page>
 	);
 
-  const rederPartidasInPages= () => {
+  const renderPartidasInPages= () => {
     const itemsPerPage = 20;
     const pages = [];
 
@@ -239,6 +239,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   
   return (
     <Document>
+      {renderPartidasInPages()} 
       <PageTemplate>
         <TableTotal />
       </PageTemplate>
