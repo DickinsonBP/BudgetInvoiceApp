@@ -65,7 +65,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     } else {
       console.log("Rendered is true");
     }
-  });
+  },[document,rendered]);
 
   const formatNumber = (value) => {
     const floatValue = parseFloat(value);
