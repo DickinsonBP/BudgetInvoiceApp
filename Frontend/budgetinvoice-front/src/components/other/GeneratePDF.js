@@ -48,7 +48,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
       setTotalWithVat((floatAmount + vat_total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     }
 
-  });
+  }, [document, rendered]);
 
   const formatNumber = (value) => {
     const floatValue = parseFloat(value);
