@@ -81,7 +81,7 @@ export const updateClient = async (id, client) => {
 export const getBudgets = async() => {
     try{
         const response = await axios.get(`${API_URL}/budgets`);
-        return response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        return response.data.sort((a, b) => new Date(b.date) - new Date(a.date)).sort((a,b) => (parseInt(b.doc_number)) - (parseInt(a.doc_number)));
     }catch(error){
         console.error('Error fetching budget:',error);
         throw error;
@@ -98,8 +98,8 @@ export const getBudgetsLastId = async() => {
         }
 
         // Ordena las facturas por fecha descendente
-        const sortedBudgets = budgets.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+        const sortedBudgets = budgets.sort((a, b) => new Date(b.date) - new Date(a.date)).sort((a,b) => (parseInt(b.doc_number)) - (parseInt(a.doc_number)) );
+	
         // Devuelve el ID de la última factura (la más reciente)
         return sortedBudgets[0].doc_number;
     } catch (error) {
@@ -158,7 +158,7 @@ export const apiDeleteBudget = async (id, budget) => {
 export const getInvoices = async() => {
     try{
         const response = await axios.get(`${API_URL}/invoices`);
-        return response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        return response.data.sort((a, b) => new Date(b.date) - new Date(a.date)).sort((a,b) => (parseInt(b.doc_number)) - (parseInt(a.doc_number)));
     }catch(error){
         console.error('Error fetching invoices:',error);
         throw error;
