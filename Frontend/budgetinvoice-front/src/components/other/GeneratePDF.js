@@ -155,8 +155,8 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   );
 
 
-  const TableBody = () => (
-    partidas.map((partida, index) => (
+  const TableBody = ({curr_partidas}) => (
+    curr_partidas.map((partida, index) => (
       <Fragment key={index}>
         {partida.title && (
           <Text style={styles.partidaTitle}>{partida.title}</Text>
@@ -217,15 +217,29 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 			<Footer notes={notes} doc_type={doc_type} />
 		</Page>
 	);
+
+  const rederPartidasInPages= () => {
+    const itemsPerPage = 20;
+    const pages = [];
+
+    for(let i = 0; i < partidas.length; i++)
+    {
+      const currentPartidas = partidas.slice(i, i + itemsPerPage);
+      pages.push(
+        <PageTemplate key={i}>
+          <InvoiceTitle />
+          <Address />
+          <UserAddress />
+          <TableHead />
+          <TableBody partidas={currentPartidas}/>
+        </PageTemplate>
+      );
+    }
+  }
   
   return (
     <Document>
       <PageTemplate>
-        <InvoiceTitle />
-        <Address />
-        <UserAddress />
-        <TableHead />
-        <TableBody />
         <TableTotal />
       </PageTemplate>
     </Document>
