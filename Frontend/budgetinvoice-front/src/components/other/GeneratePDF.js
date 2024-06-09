@@ -211,39 +211,48 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   );
 
 	
-	const PageTemplate = ({children}) => (
+	const PageTemplate = ({children, showFooter = true}) => (
 		<Page size="A4" style={styles.page}>
 			{children}
-			<Footer notes={notes} doc_type={doc_type} />
+			{showFooter && <Footer notes={notes} doc_type={doc_type} />}
 		</Page>
 	);
 
-  const renderPartidasInPages= () => {
+  const renderPartidasInPages = () => {
     const itemsPerPage = 20;
     const pages = [];
+    let currentPagePartidas = [];
+    let currentPageEntries = 0;
 
-    for(let i = 0; i < partidas.length; i++)
-    {
-      const currentPartidas = partidas.slice(i, i + itemsPerPage);
-      pages.push(
-        <PageTemplate key={i}>
-          <TableBody partidas={currentPartidas}/>
-        </PageTemplate>
-      );
-      }
-      }
-      
-      return (
-        <Document>
-          <InvoiceTitle />
-          <Address />
-          <UserAddress />
-          <TableHead />
-          {renderPartidasInPages()} 
-          <PageTemplate>
-            <TableTotal />
+    partidas.forEach((partida, index) => {
+      currentPagePartidas.push(partida);
+      currentPageEntries += partida.entries.length;
+
+      if (currentPageEntries >= itemsPerPage || index === partidas.length - 1) {
+        pages.push(
+          <PageTemplate key={pages.length} showFooter={false}>
+            <InvoiceTitle />
+            <Address />
+            <UserAddress />
+            <TableHead />
+            <TableBody partidas={currentPagePartidas} />
           </PageTemplate>
-        </Document>
+        );
+        currentPagePartidas = [];
+        currentPageEntries = 0;
+      }
+    });
+
+    return pages;
+  };
+  
+  return (
+    <Document>
+      {renderPartidasInPages()} 
+      <PageTemplate>
+        <TableTotal />
+      </PageTemplate>
+    </Document>
   );
 }
 
