@@ -14,58 +14,41 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   const [vatTotal, setVatTotal] = useState(0);
 
   useEffect(() => {
-    console.log("Inside useEffect"); // Verifica que el useEffect se ejecuta
-  
-    if (!rendered) {
-      console.log("Rendered is false"); // Verifica que rendered es falso
-  
-      if (document) {
-        console.log("Document is defined:", document); // Verifica que document está definido
-        
-        if (document.data) {
-          console.log("Document Data:", document.data); // Verifica que document.data está definido
-  
-          const formattedPartidas = Object.keys(document.data).map((key) => {
-            const partida = document.data[key];
-            return {
-              title: partida.title,
-              entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
-                text: entry.text,
-                price: entry.price
-              })) : []
-            };
-          });
-  
-          console.log("Formatted Partidas:", formattedPartidas); // Verifica que formattedPartidas se ha formateado correctamente
-  
-          setPartidas(formattedPartidas);
-  
-          if (Array.isArray(document.data.notes)) {
-            const filteredNotes = document.data.notes.filter(note => note.trim() !== '');
-            setNotes(filteredNotes);
-          } else {
-            setNotes([]);
-          }
-  
-          const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
-          setDate(formattedDate);
-          setRendered(true);
-  
-          const floatAmount = parseFloat(document.price);
-          const floatVat = parseFloat(document.vat);
-          const vat_total = (floatAmount * floatVat) / 100;
-          setVatTotal(vat_total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-          setTotalWithVat((floatAmount + vat_total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-        } else {
-          console.log("Document Data is undefined or null");
-        }
+    if (!rendered && document && document.data) {
+	
+      const formattedPartidas = Object.keys(document.data).map((key) => {
+        const partida = document.data[key];
+        return {
+          title: partida.title,
+          entries: Array.isArray(partida.entries) ? partida.entries.map((entry) => ({
+            text: entry.text,
+            price: entry.price
+          })) : []
+        };
+
+      });
+
+      setPartidas(formattedPartidas);
+
+      if (Array.isArray(document.data.notes)) {
+        const filteredNotes = document.data.notes.filter(note => note.trim() !== '');
+	      setNotes(filteredNotes);
       } else {
-        console.log("Document is undefined or null");
+        setNotes([]);
       }
-    } else {
-      console.log("Rendered is true");
+
+      const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
+      setDate(formattedDate);
+      setRendered(true);
+      
+      const floatAmount = parseFloat(document.price);
+      const floatVat = parseFloat(document.vat);
+      const vat_total = (floatAmount * floatVat) / 100;
+      setVatTotal(vat_total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      setTotalWithVat((floatAmount + vat_total).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     }
-  },[document,rendered]);
+
+  });
 
   const formatNumber = (value) => {
     const floatValue = parseFloat(value);
@@ -172,8 +155,8 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
   );
 
 
-  const TableBody = ({ curr_partidas }) => (
-    curr_partidas.map((partida, index) => (
+  const TableBody = () => (
+    partidas.map((partida, index) => (
       <Fragment key={index}>
         {partida.title && (
           <Text style={styles.partidaTitle}>{partida.title}</Text>
@@ -184,7 +167,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
               <Text>{entry.text}</Text>
             </View>
             <View style={styles.tbody}>
-              <Text>{entry.price ? `${formatNumber(entry.price)}€` : ''}</Text>
+              <Text>{entry.price ? `${formatNumber(entry.price)}€`:''}</Text>
             </View>
           </View>
         ))}
@@ -217,56 +200,32 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const Footer = ({notes, doc_type}) => (
     <View style={styles.footer}>
-	    <Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
-        {notes && notes.map((note, index) => (
-          <Text key={index} style={styles.note}>{note}</Text>
-        ))}
-      {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
-        <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
-        <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
+	<Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
+      {notes && notes.map((note, index) => (
+        <Text key={index} style={styles.note}>{note}</Text>
+      ))}
+	  {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
+      <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
+      <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
   );
 
 	
-	const PageTemplate = ({children, showFooter = true}) => (
+	const PageTemplate = ({children}) => (
 		<Page size="A4" style={styles.page}>
 			{children}
-			{showFooter && <Footer notes={notes} doc_type={doc_type} />}
+			<Footer notes={notes} doc_type={doc_type} />
 		</Page>
 	);
-
-  const renderPartidasInPages = () => {
-    const itemsPerPage = 20;
-    const pages = [];
-    let currentPagePartidas = [];
-    let currentPageEntries = 0;
-
-    partidas.forEach((partida, index) => {
-      currentPagePartidas.push(partida);
-      currentPageEntries += partida.entries.length;
-
-      if (currentPageEntries >= itemsPerPage || index === partidas.length - 1) {
-        pages.push(
-          <PageTemplate key={pages.length} showFooter={false}>
-            <InvoiceTitle />
-            <Address />
-            <UserAddress />
-            <TableHead />
-            <TableBody partidas={currentPagePartidas} />
-          </PageTemplate>
-        );
-        currentPagePartidas = [];
-        currentPageEntries = 0;
-      }
-    });
-
-    return pages;
-  };
   
   return (
     <Document>
-      {renderPartidasInPages()} 
       <PageTemplate>
+        <InvoiceTitle />
+        <Address />
+        <UserAddress />
+        <TableHead />
+        <TableBody />
         <TableTotal />
       </PageTemplate>
     </Document>
