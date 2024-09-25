@@ -299,6 +299,7 @@ export default function EditInvoice(){
                             onChange={(e) => setSelectedClient(e.value)} 
                             placeholder="Selecciona un Cliente" 
                             className="w-full" 
+                            editable
                         />
                     </div>
                     <div className="field col">

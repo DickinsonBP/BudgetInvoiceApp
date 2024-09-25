@@ -21,6 +21,7 @@ import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { AutoComplete } from "primereact/autocomplete";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { format } from 'date-fns';
@@ -80,7 +81,6 @@ export default function NewBudget(){
         const fetchDocNumber = async () => {
             try{
                 const lastId = await getBudgetsLastId();
-		    console.log("NUMBER:",lastId);
                 setDocNumber(parseInt(lastId) + 1);
             }catch(error){
                 console.error('Error setting up new budget number:',error);
@@ -190,6 +190,18 @@ export default function NewBudget(){
         navigate('/budgets');
     } 
 
+    const search = (event) => {
+      // Verifica que haya texto en la búsqueda
+      const query = event.query.toLowerCase(); // Convierte a minúsculas para una comparación insensible a mayúsculas
+      const filteredClients = clients.filter(client => 
+          client.label.toLowerCase().includes(query) // Filtra los clientes cuyo nombre incluye el texto de búsqueda
+      );
+  
+      // Actualiza las sugerencias con los clientes filtrados
+      setClients(filteredClients);
+  };
+  
+
     return (
         <div className="card">
           <Card className="card-item">
@@ -269,6 +281,7 @@ export default function NewBudget(){
                       onChange={e => setSelectedClient(e.value)}
                       placeholder="Selecciona un Cliente"
                       className="w-full"
+                      editable
                     />
                   </div>
                   <div className="field col">
