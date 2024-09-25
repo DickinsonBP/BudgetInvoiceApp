@@ -178,7 +178,6 @@ export default function NewBudget(){
                     notes: notes.map(note => note.text)
             }
         };
-        console.log("NEW",budgetData);
         try {
             const response = await createBudget(budgetData);
             navigate('/budgets');

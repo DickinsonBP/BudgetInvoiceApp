@@ -21,9 +21,34 @@ import { FloatLabel } from 'primereact/floatlabel';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 import { Calendar } from 'primereact/calendar';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 
 import { format, parse } from 'date-fns';
 import es from 'date-fns/locale/es';
+
+const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+};
+
+const grid = 8;
+
+const getItemStyle = (isDragging, draggableStyle) => ({
+    userSelect: "none",
+    padding: grid * 2,
+    margin: `0 0 ${grid}px 0`,
+    background: isDragging ? "lightgrey" : "grey",
+    ...draggableStyle
+});
+
+const getListStyle = isDraggingOver => ({
+    background: isDraggingOver ? "lightgrey" : "lightgrey",
+    padding: grid,
+    width: "100%"
+});
 
 export default function EditInvoice(){
     const location = useLocation();
@@ -173,6 +198,12 @@ export default function EditInvoice(){
         setNotes(newNotes);
     };
 
+    const handleOnDragEnd = (result) => {
+        if (!result.destination) return;
+        const items = reorder(partidas, result.source.index, result.destination.index);
+        setPartidas(items);
+    };
+
     const handleSubmit = async (e) => { 
         e.preventDefault();
         const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd', { locale: es }) : '';
@@ -209,204 +240,237 @@ export default function EditInvoice(){
 
     return (
         <div className="card">
-            <Card className='card-item'>
-                <Button type="button" severity="secondary" raised label="Volver" icon="pi pi-chevron-left"  className="p-mt-2" onClick={handleReturn} />
-                <h1>Editar factura</h1>
-
-                <div className='p-field'>
-                    <h3 className='p-field-label'>Cuerpo de la factura</h3>
-                    
-                    <form>
-                        <div className='grid'>
-                            <div className='col-2'>
-                                <Button type="button" severity="success" raised label="Guardar factura" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
-                            </div>
-                        </div>
-                        <div className='formgrid grid'>
-                            <div className='field col'>
-                                <InputText 
-                                    id="title" 
-                                    value={invoice.title} 
-                                    onChange={(e) => setTitle(e.target.value)} 
-                                    placeholder="Título" 
-                                    className="w-full" 
-                                />
-                            </div>
-                            <div className='field col'>
-                                <InputText 
-                                    id="doc_number" 
-                                    value={selectedDocNumber} 
-                                    onChange={(e) => setSelectedDocNumber(e.target.value)} 
-                                    placeholder="Número de factura" 
-                                    className="w-full" 
-                                />
-                            </div>
-                            <div className="field col">
-                                <InputNumber 
-                                    id="price" 
-                                    value={price} 
-                                    // onValueChange={(e) => setPrice(e.value)} 
-                                    mode="currency" 
-                                    currency="EUR" 
-                                    locale="es-ES" 
-                                    placeholder="Precio total" 
-                                    className="w-full" 
-                                />
-                            </div>
-                            <div className="field col">
-                                <Dropdown 
-                                    value={selectedClient} 
-                                    options={clients} 
-                                    onChange={(e) => setSelectedClient(e.value)} 
-                                    placeholder="Selecciona un Cliente" 
-                                    className="w-full" 
-                                />
-                            </div>
-                            <div className="field col">
-                                <Dropdown 
-                                    value={selectedBudget} 
-                                    options={budgets} 
-                                    onChange={(e) => setSelectedBudget(e.value)} 
-                                    placeholder="Selecciona un presupuesto" 
-                                    className="w-full" 
-                                />
-                            </div>
-                            <div className="field col">
-                                <Dropdown 
-                                    value={selectedVAT} 
-                                    options={[
-                                        { label: '10%', value: 10 },
-                                        { label: '21%', value: 21 }
-                                    ]} 
-                                    onChange={(e) => setSelectedVAT(e.value)} 
-                                    placeholder="Selecciona IVA" 
-                                    className="w-full" 
-                                />
-                            </div>
-                            <div className='field col'>
-                                <Calendar value={selectedDate} onChange={(e) => setSelectedDate(e.value)} showIcon locale="es" dateFormat='dd/mm/yy'/>
-                            </div>
-                            <div className='field col'>
-                                <Checkbox name='status' onChange={handleCheckboxChange} checked={invoice.status}></Checkbox>
-                                <label className="ml-2">Pagada?</label>
-                            </div>
-                        </div>
+          <Card className="card-item">
+            <Button
+              type="button"
+              severity="secondary"
+              raised
+              label="Volver"
+              icon="pi pi-chevron-left"
+              className="p-mt-2"
+              onClick={handleReturn}
+            />
+            <h1>Editar factura</h1>
+    
+            <div className="p-field">
+              <h3 className="p-field-label">Cuerpo de la factura</h3>
+    
+              <form>
+                <div className='grid'>
+                    <div className='col-2'>
+                        <Button type="button" severity="success" raised label="Guardar factura" icon="pi pi-check"  className="p-mt-2" onClick={handleSubmit} />
+                    </div>
+                </div>
+                <div className='formgrid grid'>
+                    <div className='field col'>
+                        <InputText 
+                            id="title" 
+                            value={invoice.title} 
+                            onChange={(e) => setTitle(e.target.value)} 
+                            placeholder="Título" 
+                            className="w-full" 
+                        />
+                    </div>
+                    <div className='field col'>
+                        <InputText 
+                            id="doc_number" 
+                            value={selectedDocNumber} 
+                            onChange={(e) => setSelectedDocNumber(e.target.value)} 
+                            placeholder="Número de factura" 
+                            className="w-full" 
+                        />
+                    </div>
+                    <div className="field col">
+                        <InputNumber 
+                            id="price" 
+                            value={price} 
+                            // onValueChange={(e) => setPrice(e.value)} 
+                            mode="currency" 
+                            currency="EUR" 
+                            locale="es-ES" 
+                            placeholder="Precio total" 
+                            className="w-full" 
+                        />
+                    </div>
+                    <div className="field col">
+                        <Dropdown 
+                            value={selectedClient} 
+                            options={clients} 
+                            onChange={(e) => setSelectedClient(e.value)} 
+                            placeholder="Selecciona un Cliente" 
+                            className="w-full" 
+                        />
+                    </div>
+                    <div className="field col">
+                        <Dropdown 
+                            value={selectedBudget} 
+                            options={budgets} 
+                            onChange={(e) => setSelectedBudget(e.value)} 
+                            placeholder="Selecciona un presupuesto" 
+                            className="w-full" 
+                        />
+                    </div>
+                    <div className="field col">
+                        <Dropdown 
+                            value={selectedVAT} 
+                            options={[
+                                { label: '10%', value: 10 },
+                                { label: '21%', value: 21 }
+                            ]} 
+                            onChange={(e) => setSelectedVAT(e.value)} 
+                            placeholder="Selecciona IVA" 
+                            className="w-full" 
+                        />
+                    </div>
+                    <div className='field col'>
+                        <Calendar value={selectedDate} onChange={(e) => setSelectedDate(e.value)} showIcon locale="es" dateFormat='dd/mm/yy'/>
+                    </div>
+                    <div className='field col'>
+                        <Checkbox name='status' onChange={handleCheckboxChange} checked={invoice.status}></Checkbox>
+                        <label className="ml-2">Pagada?</label>
+                    </div>
+                </div>
+    
+                {/* Drag and Drop para las partidas */}
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                  <Droppable droppableId="partidas">
+                    {(provided, snapshot) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                      >
                         {partidas.map((partida, index) => (
-                            <Card key={index} className='p-mb-3'>
-                                <div className='formgrid grid'>
-                                    <div class="field col-12 md:col-10">
-                                        <FloatLabel>
-                                            <InputText
-                                                value={partida.title}
-                                                onChange={(e) => handlePartidaTitleChange(e, index)}
-                                                placeholder="Título de Partida"
-                                                className="w-full"
-                                            />
-                                            <label htmlFor={`partida-title-${index}`}>Título de Partida</label>
-                                        </FloatLabel>
+                          <Draggable key={`partida-${index}`} draggableId={`partida-${index}`} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                              >
+                                <Card className="p-mb-3">
+                                  <div className="formgrid grid">
+                                    <div className="field col-12 md:col-10">
+                                      <FloatLabel>
+                                        <InputText
+                                          value={partida.title}
+                                          onChange={e => handlePartidaTitleChange(e, index)}
+                                          placeholder="Título de Partida"
+                                          className="w-full"
+                                        />
+                                        <label htmlFor={`partida-title-${index}`}>Título de Partida</label>
+                                      </FloatLabel>
                                     </div>
                                     <div className="field col-12 md:col-2">
-                                        <Button 
-                                            label="Eliminar Partida"
-                                            icon="pi pi-trash"
-                                            className="p-button-sm p-button-danger"
-                                            onClick={() => handleDeletePartida(index)}
-                                        />
+                                      <Button
+                                        label="Eliminar Partida"
+                                        icon="pi pi-trash"
+                                        className="p-button-sm p-button-danger"
+                                        onClick={() => handleDeletePartida(index)}
+                                      />
                                     </div>
                                     {partida.entries.map((entry, entryIndex) => (
-                                        <React.Fragment key={entryIndex}>
-                                            <div className="field col-12 md:col-10">
-                                                <div className='formgroup-inline'>
-                                                    <div className='field col-4'>
-                                                        <InputText
-                                                            value={entry.text}
-                                                            onChange={(e) => handleEntryChange(e, index, entryIndex, 'text')}
-                                                            placeholder="Texto"
-                                                            className='w-full'
-                                                        />
-                                                    </div>
-                                                    <div className='field col-3'>
-                                                        <InputNumber 
-                                                            id="price" 
-                                                            value={entry.price} 
-                                                            onValueChange={(e) => handleEntryChange(e, index, entryIndex, 'price')}
-                                                            mode="currency" 
-                                                            currency="EUR" 
-                                                            locale="es-ES" 
-                                                            placeholder="Precio" 
-                                                        />
-                                                    </div>
-                                                    <div className='field col-2'>
-                                                        <Button
-                                                            label='Eliminar texto'
-                                                            icon="pi pi-trash" 
-                                                            severity='danger'
-                                                            onClick={() => handleDeleteEntry(index, entryIndex)}
-                                                        />
-                                                    </div>
-                                                </div>
+                                      <React.Fragment key={entryIndex}>
+                                        <div className="field col-12 md:col-10">
+                                          <div className="formgroup-inline">
+                                            <div className="field col-4">
+                                              <InputText
+                                                value={entry.text}
+                                                onChange={e => handleEntryChange(e, index, entryIndex, 'text')}
+                                                placeholder="Texto"
+                                                className="w-full"
+                                              />
                                             </div>
-                                        </React.Fragment>
+                                            <div className="field col-3">
+                                              <InputNumber
+                                                id="price"
+                                                value={entry.price}
+                                                onValueChange={e => handleEntryChange(e, index, entryIndex, 'price')}
+                                                mode="currency"
+                                                currency="EUR"
+                                                locale="es-ES"
+                                                placeholder="Precio"
+                                              />
+                                            </div>
+                                            <div className="field col-2">
+                                              <Button
+                                                label="Eliminar texto"
+                                                icon="pi pi-trash"
+                                                severity="danger"
+                                                onClick={() => handleDeleteEntry(index, entryIndex)}
+                                                type="button"
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </React.Fragment>
                                     ))}
-                                    <Button 
-                                        label="Añadir Texto"
-                                        icon="pi pi-plus"
-                                        severity='secondary'
-                                        onClick={() => handleAddEntry(index)}
-                                        type='button'
+                                    <Button
+                                      label="Añadir Texto"
+                                      icon="pi pi-plus"
+                                      severity="secondary"
+                                      onClick={() => handleAddEntry(index)}
+                                      type="button"
                                     />
-                                </div>
-                            </Card>
+                                  </div>
+                                </Card>
+                              </div>
+                            )}
+                          </Draggable>
                         ))}
-                        <div>
-                            <ToggleButton 
-                                checked={showNotes}
-                                onChange={(e) => setShowNotes(e.value)}
-                                onLabel='Añadir Nota'
-                                offLabel='Ocultar Nota'
-                                onIcon="pi pi-check" 
-                                offIcon="pi pi-times"
-                            />
-                        </div>
-                        {showNotes && (
-                            <div>
-                                {notes.map((note, index) => (
-                                    <div className='grid' key={index}>
-                                        <div className='col'>
-                                            <InputText 
-                                                id={`note-${index}`} 
-                                                value={note.text} 
-                                                onChange={(e) => handleNoteChange(e, index)} 
-                                                placeholder="Añadir Nota" 
-                                                className="w-full" 
-                                            />
-                                        </div>
-                                        <div className='col-fixed'>
-                                            <Button
-                                                label='Eliminar Nota'
-                                                icon="pi pi-trash" 
-                                                severity='danger'
-                                                onClick={() => handleDeleteNote(index)}
-                                                type='button'
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                                <Button 
-                                    label="Añadir Nota"
-                                    icon="pi pi-plus"
-                                    severity='secondary'
-                                    onClick={handleAddNote}
-                                    type='button'
-                                />
-                            </div>
-                        )}
-                    <div className='col-2'>
-                                <Button type="button" severity="secondary" raised label="Nueva Partida" icon="pi pi-plus" onClick={handleAddPartida} className="p-mt-2 p-button-sm" />
-                    </div>
-                    </form>
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+    
+                <div>
+                  <ToggleButton
+                    checked={showNotes}
+                    onChange={e => setShowNotes(e.value)}
+                    onLabel="Añadir Nota"
+                    offLabel="Ocultar Nota"
+                    onIcon="pi pi-check"
+                    offIcon="pi pi-times"
+                  />
                 </div>
-            </Card>
+                {showNotes && (
+                  <div>
+                    {notes.map((note, index) => (
+                      <div className="grid" key={index}>
+                        <div className="col">
+                          <InputText
+                            id={`note-${index}`}
+                            value={note.text}
+                            onChange={e => handleNoteChange(e, index)}
+                            placeholder="Añadir Nota"
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="col-fixed">
+                          <Button
+                            label="Eliminar Nota"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            onClick={() => handleDeleteNote(index)}
+                            type="button"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      label="Añadir Nota"
+                      icon="pi pi-plus"
+                      severity="secondary"
+                      onClick={handleAddNote}
+                      type="button"
+                    />
+                  </div>
+                )}
+              </form>
+            </div>
+          </Card>
         </div>
     );
 };
