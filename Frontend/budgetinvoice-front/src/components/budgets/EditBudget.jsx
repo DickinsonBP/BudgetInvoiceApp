@@ -68,7 +68,7 @@ export default function EditBudget(){
     const [price, setPrice] = useState('');
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
-    const [selectedVAT, setSelectedVAT] = useState(21);
+    const [selectedVAT, setSelectedVAT] = useState(null);
     const [selectedApproved, setSelectedApproved] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [showNotes, setShowNotes] = useState(true);
