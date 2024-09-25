@@ -194,7 +194,8 @@ export default function EditBudget(){
             ...budget,
             price: price,
             client: selectedClient,
-            vat: selectedVAT ? selectedVAT.value : 0,
+            // vat: selectedVAT ? selectedVAT.value : 0,
+            vat: selectedVAT,
             date: formattedDate,
             doc_number: selectedDocNumber,
             data: {
