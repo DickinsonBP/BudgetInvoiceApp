@@ -15,7 +15,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   useEffect(() => {
     if (!rendered && document && document.data) {
-	
+
       const formattedPartidas = Object.keys(document.data).map((key) => {
         const partida = document.data[key];
         return {
@@ -32,7 +32,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
       if (Array.isArray(document.data.notes)) {
         const filteredNotes = document.data.notes.filter(note => note.trim() !== '');
-	      setNotes(filteredNotes);
+        setNotes(filteredNotes);
       } else {
         setNotes([]);
       }
@@ -40,7 +40,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
       const formattedDate = document.date ? format(document.date, 'dd/MM/yyyy', { locale: es }) : '';
       setDate(formattedDate);
       setRendered(true);
-      
+
       const floatAmount = parseFloat(document.price);
       const floatVat = parseFloat(document.vat);
       const vat_total = (floatAmount * floatVat) / 100;
@@ -85,23 +85,23 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     theader2: { flex: 2, borderRightWidth: 0, borderBottomWidth: 1 },
 
     tbody: { fontSize: 9, paddingTop: 4, paddingLeft: 7, flex: 1, borderColor: 'whitesmoke', borderRightWidth: 1, borderBottomWidth: 1 },
-    
+
     total: { fontSize: 9, paddingTop: 4, paddingLeft: 7, flex: 1.5, borderColor: 'whitesmoke', borderBottomWidth: 1 },
-    
+
     tbody2: { flex: 2, borderRightWidth: 1, },
 
     //tableTotal : { width: '80%', flexDirection: 'row', justifyContent:'flex-end', textAlign:'right'},
-	tableTotal : {width:'100%', flexDirection: 'row', justifyContent:'flex-end', textAlign:'center', backgroundColor: '#DEDEDE', fontWeight: 'bold', borderColor:'black', borderWith:1},
+    tableTotal: { width: '100%', flexDirection: 'row', justifyContent: 'flex-end', textAlign: 'center', backgroundColor: '#DEDEDE', fontWeight: 'bold', borderColor: 'black', borderWith: 1 },
 
     tbody3: { fontSize: 9, paddingTop: 4, paddingLeft: 3, flex: 1, borderColor: 'whitesmoke', borderRightWidth: 1, borderBottomWidth: 1 },
 
     //footer: { position:'absolute', marginTop: 20, fontSize: 10, fontWeight: 'bold' },
-	footer: { position: 'absolute', bottom:0, left:40, right:40, textAlign: 'left', fontWeight:'bold',padding:10, fontSize:10, backgroundColor:'#DEDEDE', borderColor:'whitesmoke', flexDirection:'column', borderWith:1, width:'auto', marginVertical:10},
+    footer: { position: 'absolute', bottom: 0, left: 40, right: 40, textAlign: 'left', fontWeight: 'bold', padding: 10, fontSize: 10, backgroundColor: '#DEDEDE', borderColor: 'whitesmoke', flexDirection: 'column', borderWith: 1, width: 'auto', marginVertical: 10 },
 
-	  noteContainer: {backgroundColor: '#DEDEDE', borderWith:1, padding: 10, marginVertical:10, width:'auto'},
-	  noteTitle: {fontSize:12, fontWeight: 'bold', marginBottom:5},
+    noteContainer: { backgroundColor: '#DEDEDE', borderWith: 1, padding: 10, marginVertical: 10, width: 'auto' },
+    noteTitle: { fontSize: 12, fontWeight: 'bold', marginBottom: 5 },
     note: { marginTop: 2 },
-	  separator: {borderColor:'whitesmoke', borderBottomWith:1, marginVertical:10, width:'100%'},
+    separator: { borderColor: 'whitesmoke', borderBottomWith: 1, marginVertical: 10, width: '100%' },
 
   });
 
@@ -154,6 +154,18 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     </View>
   );
 
+  const B = (props) => <Text style={{fontWeight: 'bold'}}>{props.children}</Text>
+
+  const formatText = (text) => {
+    const parts = text.split(/(\*.*?\*)/g); // Dividir el texto por los asteriscos
+    return parts.map((part, index) => {
+      if (part.startsWith('*') && part.endsWith('*')) {
+        const boldText = part.slice(1, -1); // Eliminar los asteriscos
+        return <Text key={index} style={{ fontWeight: 'bold', fontStyle: 'italic', color: '#000' }}>{boldText}</Text>;
+      }
+      return <Text key={index}>{part}</Text>; // Texto normal
+    });
+  };
 
   const TableBody = () => (
     partidas.map((partida, index) => (
@@ -164,10 +176,12 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
         {partida.entries.map((entry, entryIndex) => (
           <View key={entryIndex} style={{ width: '100%', flexDirection: 'row' }}>
             <View style={[styles.tbody, styles.tbody2]}>
-              <Text>{entry.text}</Text>
+              <Text style={{ flexDirection: 'row'}}>
+                {formatText(entry.text)}
+              </Text>
             </View>
             <View style={styles.tbody}>
-              <Text>{entry.price ? `${formatNumber(entry.price)}€`:''}</Text>
+              <Text>{entry.price ? `${formatNumber(entry.price)}€` : ''}</Text>
             </View>
           </View>
         ))}
@@ -187,7 +201,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
         <Text>IVA {document.vat ? `${document.vat}%` : ''}</Text>
       </View>
       <View style={styles.tbody3}>
-        <Text>{document.vat ? `${vatTotal}€`:''}</Text>
+        <Text>{document.vat ? `${vatTotal}€` : ''}</Text>
       </View>
       <View style={styles.tbody3}>
         <Text>Total</Text>
@@ -198,26 +212,26 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     </View>
   );
 
-  const Footer = ({notes, doc_type}) => (
+  const Footer = ({ notes, doc_type }) => (
     <View style={styles.footer}>
-	<Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
+      <Text style={styles.noteTitle}>{Array.isArray(notes) && notes.length > 0 ? 'Notas' : ''}</Text>
       {notes && notes.map((note, index) => (
         <Text key={index} style={styles.note}>{note}</Text>
       ))}
-	  {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
+      {Array.isArray(notes) && notes.length > 0 && <View style={styles.separator} />}
       <Text>{doc_type === "invoice" ? "Ingreso a la siguiente cuenta" : ""}</Text>
       <Text>{doc_type === "invoice" ? "ES63 0182 6240 62 0201590287" : ""}</Text>
     </View>
   );
 
-	
-	const PageTemplate = ({children}) => (
-		<Page size="A4" style={styles.page}>
-			{children}
-			<Footer notes={notes} doc_type={doc_type} />
-		</Page>
-	);
-  
+
+  const PageTemplate = ({ children }) => (
+    <Page size="A4" style={styles.page}>
+      {children}
+      <Footer notes={notes} doc_type={doc_type} />
+    </Page>
+  );
+
   return (
     <Document>
       <PageTemplate>
