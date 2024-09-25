@@ -22,12 +22,7 @@ export default function Navbar() {
                     label: 'Ver clientes',
                     icon: 'pi pi-list',
                     command: () => { navigate('/clients'); },
-                },
-                {
-                    label: 'Nuevo cliente',
-                    icon: 'pi pi-user-plus',
-                    command: () => { navigate('/clients/new-client'); },
-                } 
+                }
             ],
         },
         {
