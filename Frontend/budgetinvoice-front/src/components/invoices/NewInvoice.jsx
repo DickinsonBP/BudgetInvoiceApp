@@ -199,7 +199,7 @@ export default function NewInvoice(){
             toast.current.show({ severity: 'success', summary: 'Felicidades!', detail: 'Factura creada correctamente', life: 3000 });
             navigate('/invoices');
         } catch (error) {
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se ha podido crear la factura. Campos obligatorios: Titulo, Cliente y Presupuesto', life: 3000 });
+            // toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se ha podido crear la factura. Campos obligatorios: Titulo, Cliente y Presupuesto', life: 3000 });
             console.error('Error creating invoice:', error);
         }
     };
