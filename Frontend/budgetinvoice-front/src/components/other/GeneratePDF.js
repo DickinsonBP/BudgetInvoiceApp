@@ -191,7 +191,7 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
 
   const TableTotal = () => {
     const formattedPrice = parseFloat(document.price) > 0 ? formatNumber(document.price) : "";
-    const formattedVat = parseFloat(document.vat) > 0 ? `IVA ${document.vat}%` : "";
+    const formattedVat = parseFloat(document.vat) > 0 ? `IVA ${document.vat}%` : "IVA ";
     const formattedVatTotal = parseFloat(document.vat) > 0 ? `${vatTotal}€` : "";
     const formattedTotalWithVat = parseFloat(document.price) > 0 ? `${totalWitVat}€` : "";
   
