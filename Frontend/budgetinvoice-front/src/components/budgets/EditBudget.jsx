@@ -66,6 +66,7 @@ export default function EditBudget(){
     const [partidas, setPartidas] = useState([{ title: '', entries: [{ text: '', price: 0 }] }]);
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
+    const [includeTotal, setIncludeTotal] = useState(true);
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
     const [selectedVAT, setSelectedVAT] = useState(null);
@@ -124,12 +125,16 @@ export default function EditBudget(){
     }, []);
 
     useEffect(() => {
-        const total = partidas.reduce((acc, partida) => {
-            const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
-            return acc + partidaTotal;
-        }, 0);
-        setPrice(total.toFixed(2));
-    }, [partidas]);
+      if (includeTotal) {
+          const total = partidas.reduce((acc, partida) => {
+              const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
+              return acc + partidaTotal;
+          }, 0);
+          setPrice(total.toFixed(2));
+      } else {
+          setPrice('0.00');
+      }
+    }, [partidas, includeTotal]); 
 
     const handleAddPartida = () => {
         setPartidas([...partidas, { title: '', entries: [{ text: '', price: 0 }] }]);
@@ -192,10 +197,10 @@ export default function EditBudget(){
         const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd', { locale: es }) : '';
         const budgetData = {
             ...budget,
-            price: price,
+            price: includeTotal ? price : '0.00',
             client: selectedClient,
-            vat: selectedVAT ? selectedVAT.value : 0,
-            // vat: selectedVAT,
+            // vat: selectedVAT ? selectedVAT.value : 0,
+            vat: selectedVAT,
             // vat: selectedVAT ? selectedVAT : 0,
             date: formattedDate,
             doc_number: selectedDocNumber,
@@ -210,6 +215,7 @@ export default function EditBudget(){
                 notes: notes.map(note => note.text)
             }
         };
+
         try {
             await updateBudget(budget.id, budgetData);
             navigate('/budgets');
@@ -284,16 +290,29 @@ export default function EditBudget(){
                     />
                   </div>
                   <div className="field col">
-                    <InputNumber
-                      id="price"
-                      value={price}
-                      mode="currency"
-                      currency="EUR"
-                      locale="es-ES"
-                      placeholder="Precio total"
-                      className="w-full"
+                    <ToggleButton
+                        checked={includeTotal}
+                        onChange={(e) => setIncludeTotal(e.value)}
+                        onLabel="Incluir Total"
+                        offLabel="Excluir Total"
+                        onIcon="pi pi-check"
+                        offIcon="pi pi-times"
                     />
                   </div>
+                  {includeTotal && (
+                      <div className="field col">
+                          <InputNumber
+                              id="price"
+                              value={price}
+                              mode="currency"
+                              currency="EUR"
+                              locale="es-ES"
+                              placeholder="Precio total"
+                              className="w-full"
+                              disabled
+                          />
+                      </div>
+                  )}
                   <div className="field col">
                     <Dropdown
                       value={selectedClient}
