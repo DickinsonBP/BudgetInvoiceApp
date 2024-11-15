@@ -189,28 +189,37 @@ const GeneratePDF = React.memo(({ document, doc_type, client, doc_number }) => {
     ))
   );
 
-  const TableTotal = () => (
-    <View style={styles.tableTotal}>
-      <View style={styles.tbody3}>
-        <Text>Subtotal</Text>
+  const TableTotal = () => {
+    // Condición para determinar si se debe mostrar el subtotal, IVA y total
+    const shouldShowTotals = parseFloat(document.price) > 0;
+  
+    return shouldShowTotals ? (
+      <View style={styles.tableTotal}>
+        <View style={styles.tbody3}>
+          <Text>Subtotal</Text>
+        </View>
+        <View style={styles.tbody3}>
+          <Text>{formatNumber(document.price)}€</Text>
+        </View>
+        {document.vat && (
+          <>
+            <View style={styles.tbody3}>
+              <Text>IVA {document.vat}%</Text>
+            </View>
+            <View style={styles.tbody3}>
+              <Text>{vatTotal}€</Text>
+            </View>
+          </>
+        )}
+        <View style={styles.tbody3}>
+          <Text>Total</Text>
+        </View>
+        <View style={styles.tbody3}>
+          <Text>{totalWitVat}€</Text>
+        </View>
       </View>
-      <View style={styles.tbody3}>
-        <Text>{formatNumber(document.price)}€</Text>
-      </View>
-      <View style={styles.tbody3}>
-        <Text>IVA {document.vat ? `${document.vat}%` : ''}</Text>
-      </View>
-      <View style={styles.tbody3}>
-        <Text>{document.vat ? `${vatTotal}€` : ''}</Text>
-      </View>
-      <View style={styles.tbody3}>
-        <Text>Total</Text>
-      </View>
-      <View style={styles.tbody3}>
-        <Text>{totalWitVat}€</Text>
-      </View>
-    </View>
-  );
+    ) : null; // No renderizar nada si el total es 0
+  };  
 
   const Footer = ({ notes, doc_type }) => (
     <View style={styles.footer}>
