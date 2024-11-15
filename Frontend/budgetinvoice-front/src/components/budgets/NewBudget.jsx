@@ -57,6 +57,7 @@ export default function NewBudget(){
     const [title, setTitle] = useState('');
     const [budgetDate, setBudgetDate] = useState(null);
     const [price, setPrice] = useState('');
+    const [includeTotal, setIncludeTotal] = useState(true);
     const [clients, setClients] = useState([]);
     const [approved, setApproved] = useState(null);
     const [selectedClient, setSelectedClient] = useState(null);
@@ -93,12 +94,16 @@ export default function NewBudget(){
     }, []);
 
     useEffect(() => {
-        const total = partidas.reduce((acc, partida) => {
-            const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
-            return acc + partidaTotal;
-        }, 0);
-        setPrice(total.toFixed(2));
-    }, [partidas]);
+      if (includeTotal) {
+          const total = partidas.reduce((acc, partida) => {
+              const partidaTotal = partida.entries.reduce((partidaAcc, entry) => partidaAcc + (entry.price || 0), 0);
+              return acc + partidaTotal;
+          }, 0);
+          setPrice(total.toFixed(2));
+      } else {
+          setPrice('0.00');
+      }
+    }, [partidas, includeTotal]);  
 
     const handleAddPartida = () => {
         setPartidas([...partidas, { title: '', entries: [{ text: '', price: 0 }] }]);
@@ -158,28 +163,25 @@ export default function NewBudget(){
         e.preventDefault();
         const formattedDate = budgetDate ? format(budgetDate, 'yyyy-MM-dd', { locale: es }) : '';
         const budgetData = {
-            title: title,
-            price: price,
-            client: selectedClient,
-            vat: selectedVAT ? selectedVAT.value : 0,
-            // vat: selectedVAT,
-            // vat: selectedVAT ? selectedVAT : 0,
-            approved: approved ? approved : false,
-            date: formattedDate,
-            doc_number: docNumber,
-            data: {
-                    ...partidas.reduce((acc, partida, index) => {
-                                acc[`partida${index + 1}`] = {
-                                    title: partida.title,
-                                    entries: partida.entries.map(entry => ({ text: entry.text, price: entry.price }))
-                                };
-                                return acc;
-                            }, 
-                        {}
-                    ),
-                    notes: notes.map(note => note.text)
-            }
+          title: title,
+          price: includeTotal ? price : '0.00',
+          client: selectedClient,
+          vat: selectedVAT ? selectedVAT.value : 0,
+          approved: approved ? approved : false,
+          date: formattedDate,
+          doc_number: docNumber,
+          data: {
+            ...partidas.reduce((acc, partida, index) => {
+                acc[`partida${index + 1}`] = {
+                    title: partida.title,
+                    entries: partida.entries.map(entry => ({ text: entry.text, price: entry.price }))
+                };
+                return acc;
+            }, {}),
+            notes: notes.map(note => note.text)
+          }
         };
+      
         try {
             const response = await createBudget(budgetData);
             navigate('/budgets');
@@ -266,16 +268,29 @@ export default function NewBudget(){
                     />
                   </div>
                   <div className="field col">
-                    <InputNumber
-                      id="price"
-                      value={price}
-                      mode="currency"
-                      currency="EUR"
-                      locale="es-ES"
-                      placeholder="Precio total"
-                      className="w-full"
+                    <ToggleButton
+                        checked={includeTotal}
+                        onChange={(e) => setIncludeTotal(e.value)}
+                        onLabel="Incluir Total"
+                        offLabel="Excluir Total"
+                        onIcon="pi pi-check"
+                        offIcon="pi pi-times"
                     />
                   </div>
+                  {includeTotal && (
+                      <div className="field col">
+                          <InputNumber
+                              id="price"
+                              value={price}
+                              mode="currency"
+                              currency="EUR"
+                              locale="es-ES"
+                              placeholder="Precio total"
+                              className="w-full"
+                              disabled
+                          />
+                      </div>
+                  )}
                   <div className="field col">
                     <Dropdown
                       value={selectedClient}
