@@ -166,7 +166,7 @@ export default function NewBudget(){
           title: title,
           price: includeTotal ? price : '0.00',
           client: selectedClient,
-          vat: selectedVAT,
+          vat: selectedVAT.value,
           approved: approved ? approved : false,
           date: formattedDate,
           doc_number: docNumber,
@@ -307,7 +307,7 @@ export default function NewBudget(){
                       options={[
                         { label: '10%', value: 10 },
                         { label: '21%', value: 21 },
-                        { label: '0%', value: 0 },
+                        { label: 0, value: 0 },
                       ]}
                       onChange={e => setSelectedVAT(e.value)}
                       placeholder="Selecciona IVA"
