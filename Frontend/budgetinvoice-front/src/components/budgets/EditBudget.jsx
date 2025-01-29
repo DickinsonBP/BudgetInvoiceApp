@@ -325,8 +325,8 @@ export default function EditBudget(){
                     <Dropdown
                       value={selectedVAT}
                       options={[
-                        { label: '10%', value: 10 },
-                        { label: '21%', value: 21 },
+                        { label: 10, value: 10 },
+                        { label: 11, value: 21 },
                         { label: 0, value: 0 },
                       ]}
                       onChange={e => setSelectedVAT(e.value)}
