@@ -94,8 +94,10 @@ export default function NewInvoice(){
         };
         const fetchDocNumber = async () => {
             try{
+                // const lastId = await getInvoicesLastId();
+                // setDocNumber(calculateId(lastId + 1));
                 const lastId = await getInvoicesLastId();
-                setDocNumber(calculateId(lastId + 1));
+                  setDocNumber(parseInt(lastId) + 1);
             }catch(error){
                 console.error('Error setting up new invoice number:',error);
             }
